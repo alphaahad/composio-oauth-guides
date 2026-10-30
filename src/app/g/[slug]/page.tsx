@@ -111,6 +111,7 @@ async function GuideContent({ slug }: { slug: string }) {
 
       <h2>What an agent can do, and where you take over</h2>
       <p className="muted">Setup surface: {SURFACE_LABEL[g.automation.surface]}</p>
+      {g.automation.surfaceClaim && <ClaimView claim={{ ...g.automation.surfaceClaim, text: "Basis:" }} />}
       <div className="two">
         <div className="panel">
           <h3>Agent can</h3>

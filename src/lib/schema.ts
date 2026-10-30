@@ -30,6 +30,8 @@ export const Claim = z.object({
   text: z.string(),
   confidence: Confidence,
   evidence: z.array(Evidence),
+  /** Set by the entailment check when the quote supports only part of the claim. */
+  support: z.enum(["partial"]).optional(),
 });
 export type Claim = z.infer<typeof Claim>;
 
@@ -103,6 +105,8 @@ export const Guide = z.object({
 
   automation: z.object({
     surface: Surface,
+    /** The quote that supports `surface`. Without a verified one, surface is "unknown". Optional for older seeds. */
+    surfaceClaim: Claim.optional(),
     agentCan: z.array(Claim),
     youMust: z.array(Claim),
   }),
@@ -162,6 +166,9 @@ export const ExtractedGuide = z.object({
   requirements: z.array(ExtractedItem),
   gotchas: z.array(ExtractedItem),
   surface: Surface,
+  surfaceItem: ExtractedItem.describe(
+    "The quote showing HOW the app can be created: via API, CLI, manifest, or web UI only. Empty if no page says.",
+  ),
   agentCan: z.array(ExtractedItem),
   youMust: z.array(ExtractedItem),
   contacts: z.array(ExtractedItem),

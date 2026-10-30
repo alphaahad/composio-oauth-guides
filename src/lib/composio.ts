@@ -41,8 +41,11 @@ async function loadToolkits() {
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
+// Names people type that differ from the catalog's toolkit names.
+const ALIASES: Record<string, string> = { x: "twitter", xcom: "twitter", gsuite: "google", googleworkspace: "google" };
+
 export function matchToolkits(app: string, toolkits: Toolkit[]): Toolkit[] {
-  const a = norm(app);
+  const a = ALIASES[norm(app)] ?? norm(app);
   if (!a) return [];
   const exact = toolkits.filter((t) => norm(t.name) === a || norm(t.slug) === a);
   if (exact.length) return exact;

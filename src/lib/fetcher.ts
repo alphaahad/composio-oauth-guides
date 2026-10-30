@@ -94,8 +94,26 @@ function decodeBasic(s: string) {
   return s.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, decodeEntity);
 }
 
+/** Absolute https links from raw HTML or markdown, resolved against `base`. Used to follow docs links one hop. */
+export function extractLinks(raw: string, base: string, cap = 400): string[] {
+  const out = new Set<string>();
+  const add = (href: string) => {
+    try {
+      const u = new URL(href.trim(), base);
+      if (u.protocol !== "https:") return;
+      u.hash = "";
+      out.add(u.toString());
+    } catch {
+      /* ignore malformed hrefs */
+    }
+  };
+  for (const m of raw.matchAll(/href\s*=\s*["']([^"'#][^"']*)["']/gi)) add(m[1]);
+  for (const m of raw.matchAll(/\]\(([^)\s]+)\)/g)) add(m[1]);
+  return [...out].slice(0, cap);
+}
+
 export type FetchResult =
-  | { ok: true; page: FetchedPage; status: number }
+  | { ok: true; page: FetchedPage; status: number; links?: string[] }
   | { ok: false; url: string; error: string; status?: number };
 
 export async function fetchPage(rawUrl: string): Promise<FetchResult> {
@@ -112,7 +130,7 @@ export async function fetchPage(rawUrl: string): Promise<FetchResult> {
           signal: ctrl.signal,
           headers: {
             "user-agent": "oauth-guide-bot/0.1 (documentation research tool)",
-            accept: "text/html,text/markdown,text/plain;q=0.9,*/*;q=0.1",
+            accept: "text/markdown,text/html;q=0.9,text/plain;q=0.8,*/*;q=0.1", // many docs sites serve clean markdown when asked
           },
         });
       } finally {
@@ -142,6 +160,7 @@ export async function fetchPage(rawUrl: string): Promise<FetchResult> {
         ok: true,
         status: res.status,
         page: { url: current, title, text, fetchedAt: new Date().toISOString() },
+        links: extractLinks(body, current),
       };
     }
     return { ok: false, url: rawUrl, error: "too many redirects" };

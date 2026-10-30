@@ -36,7 +36,7 @@ export const CONFIDENCE_HELP: Record<Confidence, string> = {
   unknown: "No source supports this; treat it as a gap.",
 };
 
-const bullets = (claims: Claim[]) => claims.map((c) => `- ${c.text} _[${CONFIDENCE_LABEL[c.confidence]}]_`).join("\n");
+const bullets = (claims: Claim[]) => claims.map((c) => `- ${c.text} _[${CONFIDENCE_LABEL[c.confidence]}${c.support === "partial" ? ", partly supported" : ""}]_`).join("\n");
 
 /** Plain-markdown export so a guide can be pasted into a ticket or chat. */
 export function guideToMarkdown(g: Guide, shareUrl?: string): string {

@@ -1,4 +1,5 @@
 import { promises as fs } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { cacheLife } from "next/cache";
 import { Guide } from "./schema";
@@ -35,8 +36,10 @@ export async function listSeeds(): Promise<Guide[]> {
   return guides.filter((g): g is Guide => g !== null).sort((a, b) => a.appName.localeCompare(b.appName));
 }
 
-/* Live guides: Upstash Redis over REST when configured, otherwise process memory (fine locally). */
-const mem = new Map<string, { at: number; json: string }>();
+/* Live guides: Upstash Redis over REST when configured (required in production, where instances share no memory
+   or disk), otherwise JSON files under .data/live for local development. Route handlers and pages do not share
+   module state, so an in-memory Map is not an option. */
+const LIVE_DIRS = [path.join(process.cwd(), ".data", "live"), path.join(os.tmpdir(), "oauth-guides-live")];
 const upstash = () => {
   const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
@@ -57,13 +60,21 @@ async function redis(cmd: (string | number)[]): Promise<unknown> {
 
 export async function getLive(slug: string): Promise<Guide | null> {
   if (!isValidSlug(slug)) return null;
-  const key = `guide:${slug}`;
   let json: string | null = null;
   if (upstash()) {
-    json = ((await redis(["GET", key])) as string | null) ?? null;
+    json = ((await redis(["GET", `guide:${slug}`])) as string | null) ?? null;
   } else {
-    const hit = mem.get(key);
-    if (hit && Date.now() - hit.at < TTL_SECONDS * 1000) json = hit.json;
+    for (const dir of LIVE_DIRS) {
+      try {
+        const file = path.join(dir, `${slug}.json`);
+        const stat = await fs.stat(file);
+        if (Date.now() - stat.mtimeMs > TTL_SECONDS * 1000) continue;
+        json = await fs.readFile(file, "utf8");
+        break;
+      } catch {
+        /* try the next location */
+      }
+    }
   }
   if (!json) return null;
   const parsed = Guide.safeParse(JSON.parse(json));
@@ -72,10 +83,22 @@ export async function getLive(slug: string): Promise<Guide | null> {
 
 export async function saveLive(guide: Guide): Promise<void> {
   if (!isValidSlug(guide.slug)) throw new Error("invalid slug");
-  const key = `guide:${guide.slug}`;
   const json = JSON.stringify(guide);
-  if (upstash()) await redis(["SET", key, json, "EX", TTL_SECONDS]);
-  else mem.set(key, { at: Date.now(), json });
+  if (upstash()) {
+    await redis(["SET", `guide:${guide.slug}`, json, "EX", TTL_SECONDS]);
+    return;
+  }
+  let lastErr: unknown;
+  for (const dir of LIVE_DIRS) {
+    try {
+      await fs.mkdir(dir, { recursive: true });
+      await fs.writeFile(path.join(dir, `${guide.slug}.json`), json);
+      return;
+    } catch (e) {
+      lastErr = e; // read-only filesystem: fall through to the temp dir
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error("could not save guide");
 }
 
 export async function getGuide(slug: string): Promise<Guide | null> {

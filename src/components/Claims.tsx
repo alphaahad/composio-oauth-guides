@@ -23,6 +23,11 @@ export function ClaimView({ claim }: { claim: Claim }) {
     <div className="claim">
       <p>
         {claim.text} <Badge level={claim.confidence} />
+        {claim.support === "partial" && (
+          <span className="badge badge-reported" title="The quote supports only part of this claim, or a weaker version of it.">
+            Partly supported
+          </span>
+        )}
       </p>
       {claim.evidence.length > 0 && (
         <details className="evidence">

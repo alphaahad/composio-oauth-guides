@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const deps = defaultDeps(geminiLlm(apiKey, process.env.GEMINI_MODEL || DEFAULT_MODEL));
+  const deps = defaultDeps(geminiLlm(apiKey, { model: process.env.GEMINI_MODEL || DEFAULT_MODEL, groundingModel: process.env.GEMINI_GROUNDING_MODEL || undefined }));
   const stream = new ReadableStream({
     async start(controller) {
       const enc = new TextEncoder();

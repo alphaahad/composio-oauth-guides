@@ -23,3 +23,12 @@ describe("composio managed-auth parser (real page, fetched 2026-10-30)", () => {
     expect(matchToolkits("definitely-not-an-app", toolkits)).toEqual([]);
   });
 });
+
+describe("aliases", () => {
+  it("maps X to the Twitter toolkit (bring-your-own on the catalog)", () => {
+    const m = matchToolkits("X", toolkits);
+    expect(m.length).toBeGreaterThan(0);
+    expect(m.every((t) => /twitter|^x/i.test(t.name + t.slug))).toBe(true);
+    expect(m.some((t) => t.managed)).toBe(false);
+  });
+});
