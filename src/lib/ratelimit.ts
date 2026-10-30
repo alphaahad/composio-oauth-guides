@@ -11,6 +11,7 @@ let globalHits: number[] = [];
 const recent = (hits: number[], windowMs: number, now: number) => hits.filter((t) => now - t < windowMs);
 
 export function checkRate(ip: string, now = Date.now()): { ok: true } | { ok: false; retryAfterSec: number } {
+  if (process.env.NODE_ENV !== "production" && process.env.DISABLE_RATE_LIMIT === "1") return { ok: true };
   globalHits = recent(globalHits, GLOBAL.windowMs, now);
   const mine = recent(ipHits.get(ip) ?? [], PER_IP.windowMs, now);
 

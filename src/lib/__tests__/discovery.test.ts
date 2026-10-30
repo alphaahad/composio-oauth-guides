@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { guessUrls, registrableDomain, sameSite, urlsFromLlmsTxt } from "../discovery";
+import { guessUrls, guessWebsite, registrableDomain, sameSite, urlsFromLlmsTxt } from "../discovery";
 
 describe("discovery helpers", () => {
   it("registrableDomain strips www and subdomains", () => {
@@ -31,7 +31,7 @@ import { extractLinks } from "../fetcher";
 describe("link following", () => {
   it("extractLinks reads html hrefs and markdown links, resolves relatives, drops non-https and fragments", () => {
     const raw = `<a href="/docs/oauth-2-0">x</a> <a href='https://other.com/a#frag'>y</a> <a href="http://insecure.com/z">n</a> <a href="#top">t</a> and [md](/docs/scopes) [abs](https://docs.example.com/app-review)`;
-    expect(extractLinks(raw, "https://docs.example.com/overview").sort()).toEqual(
+    expect(extractLinks(raw, "https://docs.example.com/overview").map((l) => l.url).sort()).toEqual(
       ["https://docs.example.com/app-review", "https://docs.example.com/docs/oauth-2-0", "https://docs.example.com/docs/scopes", "https://other.com/a"].sort(),
     );
   });
@@ -43,9 +43,32 @@ describe("link following", () => {
   });
   it("rankLinks keeps same-host relevant links, best first", () => {
     const r = rankLinks(
-      ["https://d.com/blog/x", "https://d.com/scopes", "https://elsewhere.com/oauth", "https://d.com/oauth-guide"],
+      ["https://d.com/blog/x", "https://d.com/scopes", "https://elsewhere.com/oauth", "https://d.com/oauth-guide"].map((url) => ({ url })),
       "https://d.com/overview",
     );
     expect(r.map((x) => x.url)).toEqual(["https://d.com/oauth-guide", "https://d.com/scopes"]);
+  });
+});
+
+describe("anchor text", () => {
+  it("extractLinks keeps the anchor text from html and markdown", () => {
+    const links = extractLinks(`<a class="x" href="/dev/apps"><span>Create an</span> application</a> [Scopes guide](/dev/scopes)`, "https://d.com/");
+    expect(links).toEqual([
+      { url: "https://d.com/dev/apps", text: "Create an application" },
+      { url: "https://d.com/dev/scopes", text: "Scopes guide" },
+    ]);
+  });
+  it("scoreLink uses anchor text when the path says nothing (regression: Typeform /get-started/applications)", () => {
+    expect(scoreLink("https://www.typeform.com/developers/get-started/applications/")).toBeGreaterThan(0);
+    expect(scoreLink("https://d.com/x/abc123")).toBe(0);
+    expect(scoreLink("https://d.com/x/abc123", "OAuth 2.0 setup")).toBeGreaterThan(0);
+  });
+});
+
+describe("guessWebsite", () => {
+  it("derives a .com from a bare name, and refuses nonsense", () => {
+    expect(guessWebsite("Typeform")).toBe("https://typeform.com");
+    expect(guessWebsite("Cal.com")).toBe("https://calcom.com");
+    expect(guessWebsite("!")).toBeUndefined();
   });
 });

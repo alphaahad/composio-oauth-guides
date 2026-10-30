@@ -151,6 +151,17 @@ describe("discovery without a search tool", () => {
     expect(resultOf(events)).toBeTruthy();
   });
 
+  it("still tries the app's likely website when the model is down and only a name was given", async () => {
+    const fetched: string[] = [];
+    const deps = mkDeps({
+      fetchPage: async (url) => { fetched.push(url); return { ok: false as const, url, error: "HTTP 404" }; },
+      llm: { discover: async () => { throw new Error("503"); }, classify: async () => new Set(), extract: async () => extraction() },
+    });
+    await run("Typeform", deps);
+    expect(fetched).toContain("https://typeform.com/");
+    expect(fetched).toContain("https://developers.typeform.com/");
+  });
+
   it("shows a friendly message, not raw API text, when extraction hits the rate limit", async () => {
     const deps = mkDeps({ llm: { discover: async () => ({ urls: [{ url: DOC_URL }] }), classify: async () => new Set([DOC_URL]), extract: async () => { throw new RateLimitError(); } } });
     const last = (await run("Example", deps)).at(-1);
@@ -190,7 +201,7 @@ describe("discovery without a search tool", () => {
 describe("link following", () => {
   const LANDING = "https://docs.example.com/overview";
   const OAUTH = "https://docs.example.com/authentication/oauth-2-0";
-  const ok = (url: string, text = DOC_TEXT, links: string[] = []) => ({ ok: true as const, status: 200, page: { url, title: url, text, fetchedAt: "2026-10-30T00:00:00.000Z" }, links });
+  const ok = (url: string, text = DOC_TEXT, links: (string | { url: string; text: string })[] = []) => ({ ok: true as const, status: 200, page: { url, title: url, text, fetchedAt: "2026-10-30T00:00:00.000Z" }, links: links.map((l) => (typeof l === "string" ? { url: l, text: "" } : l)) });
 
   it("follows relevant links from an official landing page and cites the deeper page", async () => {
     const deps = mkDeps({
@@ -227,6 +238,38 @@ describe("link following", () => {
     });
     await run("Example", deps);
     expect(fetched.filter((u) => u.startsWith(OAUTH))).toHaveLength(1);
+  });
+
+  it("lets the model pick links the keyword scorer would miss, and ignores ones it rejects", async () => {
+    const ODD = "https://docs.example.com/x/9f3a";
+    const fetched: string[] = [];
+    const deps = mkDeps({
+      fetchPage: async (url) => { fetched.push(url); return url === LANDING ? ok(LANDING, "Welcome to the docs. ".repeat(30), [{ url: ODD, text: "Set up your connection" }, { url: OAUTH, text: "OAuth" }]) : ok(url); },
+      llm: { discover: async () => ({ urls: [{ url: LANDING }] }), classify: async () => new Set([LANDING]), extract: async () => extraction(), pickLinks: async () => [ODD] },
+    });
+    await run("Example", deps);
+    expect(fetched).toContain(ODD);
+    expect(fetched).not.toContain(OAUTH); // the model rejected it, even though it scores higher by keyword
+  });
+
+  it("follows nothing when the model says no link is relevant", async () => {
+    const fetched: string[] = [];
+    const deps = mkDeps({
+      fetchPage: async (url) => { fetched.push(url); return url === LANDING ? ok(LANDING, "Welcome to the docs. ".repeat(30), [OAUTH]) : ok(url); },
+      llm: { discover: async () => ({ urls: [{ url: LANDING }] }), classify: async () => new Set([LANDING]), extract: async () => extraction(), pickLinks: async () => [] },
+    });
+    await run("Example", deps);
+    expect(fetched).not.toContain(OAUTH);
+  });
+
+  it("falls back to keyword scores when the model cannot pick", async () => {
+    const fetched: string[] = [];
+    const deps = mkDeps({
+      fetchPage: async (url) => { fetched.push(url); return url === LANDING ? ok(LANDING, "Welcome to the docs. ".repeat(30), [OAUTH]) : ok(url); },
+      llm: { discover: async () => ({ urls: [{ url: LANDING }] }), classify: async () => new Set([LANDING]), extract: async () => extraction(), pickLinks: async () => { throw new RateLimitError(); } },
+    });
+    await run("Example", deps);
+    expect(fetched).toContain(OAUTH);
   });
 
   it("does not follow links from pages that are not confirmed official", async () => {
@@ -296,6 +339,52 @@ describe("support (entailment) check", () => {
     if (r?.type !== "result") throw new Error("no result");
     expect(r.guide.steps[0].support).toBeUndefined();
     expect(r.guide.gaps.some((g) => g.startsWith("Support check"))).toBe(false);
+  });
+});
+
+describe("verdict from absence", () => {
+  const two = (over = {}) => {
+    const A = "https://docs.example.com/a";
+    const B = "https://docs.example.com/b";
+    return mkDeps({
+      llm: { discover: async () => ({ urls: [{ url: A }, { url: B }] }), classify: async () => new Set([A, B]), extract: async () => extraction({ verdict: "no-approval-needed", verdictItem: item("Register and go", "Register your app in the developer portal."), ...over }) },
+      fetchPage: async (url) => ({ ok: true as const, status: 200, page: { url, title: url, text: DOC_TEXT + url, fetchedAt: "2026-10-30T00:00:00.000Z" } }),
+    });
+  };
+
+  it("keeps 'no approval needed' as an inference when enough official pages were read", async () => {
+    const r = resultOf(await run("Example", two()));
+    if (r?.type !== "result") throw new Error("no result");
+    expect(r.guide.verdict.value).toBe("no-approval-needed");
+    expect(r.guide.verdict.claim.confidence).toBe("inferred");
+    expect(r.guide.verdict.claim.text).toMatch(/None of the 2 official pages/);
+  });
+
+  it("refuses to infer an absence from a single page", async () => {
+    const onlyOne = mkDeps(
+      { fetchPage: async (url) => (url === DOC_URL ? { ok: true as const, status: 200, page: { url, title: "Docs", text: DOC_TEXT, fetchedAt: "2026-10-30T00:00:00.000Z" } } : { ok: false as const, url, error: "HTTP 404" }) },
+      extraction({ verdict: "no-approval-needed" }),
+    );
+    const r = resultOf(await run("Example", onlyOne));
+    if (r?.type !== "result") throw new Error("no result");
+    expect(r.guide.verdict.value).toBe("unknown");
+    expect(r.guide.gaps.some((g) => g.includes("too few official pages"))).toBe(true);
+  });
+
+  it("is not reset by the support check (it is an inference, not a quote claim)", async () => {
+    const deps = two();
+    deps.llm.judge = async (items) => new Map(items.map((i) => [i.id, "unrelated" as const]));
+    const r = resultOf(await run("Example", deps));
+    if (r?.type !== "result") throw new Error("no result");
+    expect(r.guide.verdict.value).toBe("no-approval-needed");
+  });
+});
+
+describe("url matching", () => {
+  it("maps the model's slightly different URLs back to the ones we offered", async () => {
+    const { matchOffered, urlKey } = await import("../discovery");
+    expect(urlKey("https://WWW.Example.com/Docs/#x")).toBe("https://www.example.com/Docs");
+    expect(matchOffered(["https://www.typeform.com", "https://evil.com/x"], ["https://www.typeform.com/", "https://other.com/"])).toEqual(["https://www.typeform.com/"]);
   });
 });
 

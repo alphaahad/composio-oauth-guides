@@ -133,6 +133,7 @@ async function GuideContent({ slug }: { slug: string }) {
             {VERDICT_HEADLINE[g.verdict.value]}
           </h2>
           <p className="answer-body">{g.summary}</p>
+          {g.verdict.claim.confidence === "inferred" && <p className="fineprint">{g.verdict.claim.text}</p>}
           <Source claim={g.verdict.claim} />
           <ComposioNote g={g} />
         </section>

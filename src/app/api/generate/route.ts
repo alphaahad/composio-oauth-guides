@@ -1,4 +1,4 @@
-import { DEFAULT_MODEL, geminiLlm } from "@/lib/llm";
+import { geminiLlm } from "@/lib/llm";
 import { defaultDeps, resolveInput, runPipeline, slugify } from "@/lib/pipeline";
 import { checkRate } from "@/lib/ratelimit";
 import { getLive, getSeed, saveLive } from "@/lib/store";
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const deps = defaultDeps(geminiLlm(apiKey, { model: process.env.GEMINI_MODEL || DEFAULT_MODEL, groundingModel: process.env.GEMINI_GROUNDING_MODEL || undefined }));
+  const deps = defaultDeps(geminiLlm(apiKey, { models: (process.env.GEMINI_MODEL ?? "").split(",").map((m) => m.trim()).filter(Boolean), groundingModel: process.env.GEMINI_GROUNDING_MODEL || undefined }));
   const stream = new ReadableStream({
     async start(controller) {
       const enc = new TextEncoder();
