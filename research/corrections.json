@@ -55,6 +55,17 @@
     "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps"
   },
   {
+    "id": "github-ui-vs-docs",
+    "area": "Tested",
+    "app": "GitHub",
+    "claim": "GitHub's creation guide says to type your callback into a field called \"Authorization callback URL\".",
+    "origin": "GitHub's own docs, compared with the live form during our real setup attempt",
+    "outcome": "corrected",
+    "what": "The live form says \"Redirect URI\", offers a per-URI wildcard checkbox, and the guide does not mention either. The redirect behavior itself matched the docs when we tested it: exact match enforced, any loopback port accepted. The guide now flags the mismatch so a developer is not thrown by it.",
+    "quote": "The registration form labels the field \"Redirect URI\", with the button \"Add redirect URI\", not \"Authorization callback URL\".",
+    "url": "/evidence/github/attempt-2026-10-31.txt"
+  },
+  {
     "id": "slack-manifest-api",
     "area": "Our tooling",
     "app": "Slack",

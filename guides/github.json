@@ -4,23 +4,23 @@
   "website": "https://github.com",
   "origin": "seed",
   "humanReviewed": false,
-  "generatedAt": "2026-10-30T18:30:00.000Z",
+  "generatedAt": "2026-10-31T00:30:00.000Z",
   "usesOAuth": "yes",
   "verdict": {
     "value": "no-approval-needed",
     "claim": {
-      "text": "None of the 3 official pages we read describes a review or approval step, so we infer none is required.",
-      "confidence": "inferred",
+      "text": "We registered an OAuth app and used its authorize page straight away. GitHub asked for no review or approval.",
+      "confidence": "tested",
       "evidence": [
         {
-          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
-          "quote": "Click Register application.",
-          "fetchedAt": "2026-10-30T18:22:00.000Z"
+          "url": "/evidence/github/attempt-2026-10-31.txt",
+          "quote": "Registering needed one form submission. GitHub showed no review step, no CAPTCHA, no password re-prompt and no email confirmation.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
         }
       ]
     }
   },
-  "summary": "Self-serve. You register an OAuth app in Developer settings with a short form and can use it right away. The real decisions are OAuth App versus GitHub App (GitHub recommends GitHub Apps) and how strictly to match callback URLs, which GitHub changed recently.",
+  "summary": "Self-serve, and we tested it: one form submission registered an app, and its authorize page worked right away, with no review. The real decisions are OAuth App versus GitHub App (GitHub recommends GitHub Apps) and how strictly to match redirect URLs, which GitHub changed recently.",
   "composio": {
     "managed": "yes",
     "note": "Composio lists a managed OAuth app for GitHub. You may not need your own unless you want your own branding, scopes beyond the defaults, or dedicated rate limits.",
@@ -43,9 +43,15 @@
     "evidence": []
   },
   "wait": {
-    "text": "No review wait: none of the pages we read describes a review step.",
-    "confidence": "inferred",
-    "evidence": []
+    "text": "No wait for registering an app: it worked immediately. (Marketplace listing was not tested.)",
+    "confidence": "tested",
+    "evidence": [
+      {
+        "url": "/evidence/github/attempt-2026-10-31.txt",
+        "quote": "The app's settings page loaded immediately.",
+        "fetchedAt": "2026-10-31T00:00:00.000Z"
+      }
+    ]
   },
   "blockerRisk": {
     "value": "low",
@@ -211,6 +217,39 @@
           "fetchedAt": "2026-10-30T18:22:00.000Z"
         }
       ]
+    },
+    {
+      "text": "Tested: with wildcard matching off, a redirect_uri that adds a subpath to the registered one is rejected.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/github/attempt-2026-10-31.txt",
+          "quote": "http://127.0.0.1:3000/api/auth/callback/extra (subpath) | \"The redirect_uri is not associated with this application.\"",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Tested: a loopback redirect_uri with a different port than the registered one is accepted.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/github/attempt-2026-10-31.txt",
+          "quote": "http://127.0.0.1:5555/api/auth/callback (different loopback port) | Authorize screen: \"Authorizing will redirect to http://127.0.0.1:5555\"",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Tested: an unrelated host is rejected.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/github/attempt-2026-10-31.txt",
+          "quote": "https://example.org/cb (unrelated host) | \"The redirect_uri is not associated with this application.\"",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
     }
   ],
   "requirements": [
@@ -325,12 +364,107 @@
           "fetchedAt": "2026-10-30T18:22:00.000Z"
         }
       ]
+    },
+    {
+      "text": "The registration form says \"Redirect URI\" and offers per-URI wildcard matching, but GitHub's creation guide still says \"Authorization callback URL\".",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/github/attempt-2026-10-31.txt",
+          "quote": "The registration form labels the field \"Redirect URI\", with the button \"Add redirect URI\", not \"Authorization callback URL\".",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "New apps show warnings on the consent screen: not owned by GitHub, created less than a day ago, fewer than 10 users.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/github/attempt-2026-10-31.txt",
+          "quote": "Created less than a day ago\" and \"Fewer than 10 GitHub users",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Defaults on the form: wildcard matching off, device flow off, expiring user tokens on.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/github/attempt-2026-10-31.txt",
+          "quote": "Allow wildcard matching: off",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        },
+        {
+          "url": "/evidence/github/attempt-2026-10-31.txt",
+          "quote": "Expire user access tokens: on",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
     }
   ],
   "automation": {
     "surface": "ui-only",
-    "agentCan": [],
-    "youMust": []
+    "surfaceClaim": {
+      "text": "We created the app by filling in and submitting GitHub's web form. The docs we read describe no API for it.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/github/attempt-2026-10-31.txt",
+          "quote": "Filled four fields through the page's form controls: application name, homepage URL, description, one redirect URI.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    "agentCan": [
+      {
+        "text": "Fill in and submit the registration form once the account is signed in.",
+        "confidence": "tested",
+        "evidence": [
+          {
+            "url": "/evidence/github/attempt-2026-10-31.txt",
+            "quote": "Clicked Register application.",
+            "fetchedAt": "2026-10-31T00:00:00.000Z"
+          }
+        ]
+      },
+      {
+        "text": "Check the redirect rules by requesting the authorize URL with different redirect_uri values, no credentials needed.",
+        "confidence": "tested",
+        "evidence": [
+          {
+            "url": "/evidence/github/attempt-2026-10-31.txt",
+            "quote": "Requested GitHub's authorize URL four times with different redirect_uri values to see which are accepted.",
+            "fetchedAt": "2026-10-31T00:00:00.000Z"
+          }
+        ]
+      }
+    ],
+    "youMust": [
+      {
+        "text": "Sign in to GitHub, and pass 2FA if it is on. The agent cannot enter credentials.",
+        "confidence": "tested",
+        "evidence": [
+          {
+            "url": "/evidence/github/attempt-2026-10-31.txt",
+            "quote": "Signing in to GitHub (and 2FA, if enabled) is the account owner's job. The agent cannot enter credentials.",
+            "fetchedAt": "2026-10-31T00:00:00.000Z"
+          }
+        ]
+      },
+      {
+        "text": "Each end user must click Authorize on the consent screen. We stopped before that step.",
+        "confidence": "tested",
+        "evidence": [
+          {
+            "url": "/evidence/github/attempt-2026-10-31.txt",
+            "quote": "Each end user must click Authorize on the consent screen. This was not exercised.",
+            "fetchedAt": "2026-10-31T00:00:00.000Z"
+          }
+        ]
+      }
+    ]
   },
   "blocked": {
     "contacts": [],
@@ -385,9 +519,9 @@
     }
   ],
   "gaps": [
-    "Agent-versus-human split is not filled in yet: it will come from a real setup attempt, not from the docs.",
-    "Scope documentation (Scopes for OAuth apps) was not reviewed for this guide.",
-    "No review process is documented for OAuth apps, so there is no review contact or rejection list. GitHub Marketplace listing review was not covered.",
-    "Whether GitHub offers an API to create OAuth apps is not stated on the pages read; absence from the docs is not proof that none exists."
+    "We tested a personal-account OAuth app only: not an organization-owned one, and not a GitHub App.",
+    "We did not generate a client secret or run a token exchange, and we did not try the Marketplace listing path.",
+    "The docs neither confirm nor rule out an API for creating OAuth apps. We only know the web form works.",
+    "Scope documentation (Scopes for OAuth apps) was not reviewed for this guide."
   ]
 }

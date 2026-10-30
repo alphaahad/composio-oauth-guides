@@ -1,6 +1,6 @@
 // Usage: npx tsx scripts/verify-seeds.ts [slug...]
 // Re-fetches every page cited by the curated guides and checks each quote verbatim.
-// Evidence whose url is a repo path (e.g. "evidence/...") is treated as a tested artifact: the file must exist.
+// Evidence whose url is a site path (e.g. "/evidence/...", served from public/) is a tested artifact: the file must exist and contain the quote.
 // Exits 1 if any quote cannot be found, so stale or wrong claims fail loudly.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -38,7 +38,9 @@ async function main() {
     for (const { claim, e } of evidence) {
       checked++;
       if (!/^https?:/.test(e.url)) {
-        if (!existsSync(join(root, e.url))) failures.push(`${g.slug}: tested evidence file missing: ${e.url}`);
+        const file = join(root, e.url.startsWith("/") ? join("public", e.url) : e.url);
+        if (!existsSync(file)) failures.push(`${g.slug}: tested evidence file missing: ${e.url}`);
+        else if (!quoteInText(e.quote, readFileSync(file, "utf8"))) failures.push(`${g.slug}: QUOTE NOT FOUND in evidence file ${e.url}\n    claim: ${claim.text.slice(0, 80)}\n    quote: ${e.quote}`);
         continue;
       }
       if (!pageCache.has(e.url)) {

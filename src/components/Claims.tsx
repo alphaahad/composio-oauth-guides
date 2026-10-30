@@ -2,6 +2,7 @@ import { CONFIDENCE_HELP, CONFIDENCE_LABEL } from "@/lib/present";
 import type { Claim } from "@/lib/schema";
 
 function host(u: string) {
+  if (u.startsWith("/")) return "our test log"; // evidence we produced ourselves, served from this site
   try {
     return new URL(u).hostname.replace(/^www\./, "");
   } catch {

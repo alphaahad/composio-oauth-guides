@@ -1,0 +1,58 @@
+# GitHub OAuth app: real setup attempt
+
+Date: 2026-10-31. Account: alphaahad (a personal account). The agent drove the browser pane. The account owner signed in
+first, typing their own credentials; the agent never saw or entered them.
+
+Redactions: the client ID is shortened (it is public by design, but there is no reason to publish it). No client secret was
+generated. The app is a throwaway test app.
+
+## What the agent did
+
+1. Opened https://github.com/settings/applications/new while signed in.
+2. Filled four fields through the page's form controls: application name, homepage URL, description, one redirect URI.
+3. Read the default state of every checkbox before submitting.
+4. Clicked Register application.
+5. Requested GitHub's authorize URL four times with different redirect_uri values to see which are accepted.
+   It stopped at the consent screen each time and did not click Authorize.
+
+## Observations
+
+Registering needed one form submission. GitHub showed no review step, no CAPTCHA, no password re-prompt and no email
+confirmation. The app's settings page loaded immediately.
+
+The settings page said: "alphaahad owns this application."
+It showed Client ID Ov23li...2mOvc, and the secrets section said: "You need a client secret to authenticate as the application to the API."
+It also offered: "List this application in the Marketplace". That is a separate path, which we did not take.
+
+The registration form labels the field "Redirect URI", with the button "Add redirect URI", not "Authorization callback URL".
+GitHub's creation guide still tells you to type into "Authorization callback URL".
+
+Default checkbox states on the registration form:
+- Allow wildcard matching: off
+- Enable Device Flow: off
+- Expire user access tokens: on
+
+## Redirect URI tests
+
+The registered redirect URI was http://127.0.0.1:3000/api/auth/callback with wildcard matching off.
+
+| redirect_uri requested | Result |
+| --- | --- |
+| http://127.0.0.1:3000/api/auth/callback (exact) | Authorize screen: "Authorizing will redirect to http://127.0.0.1:3000" |
+| http://127.0.0.1:3000/api/auth/callback/extra (subpath) | "The redirect_uri is not associated with this application." |
+| http://127.0.0.1:5555/api/auth/callback (different loopback port) | Authorize screen: "Authorizing will redirect to http://127.0.0.1:5555" |
+| https://example.org/cb (unrelated host) | "The redirect_uri is not associated with this application." |
+
+The consent screen for the new app showed these trust signals to the user: "Not owned or operated by GitHub",
+"Created less than a day ago" and "Fewer than 10 GitHub users".
+
+## Human gates met
+
+- Signing in to GitHub (and 2FA, if enabled) is the account owner's job. The agent cannot enter credentials.
+- Each end user must click Authorize on the consent screen. This was not exercised.
+
+## Not done
+
+- No client secret was generated, and no token exchange was run.
+- The Marketplace listing path was not attempted.
+- Only a personal-account OAuth app was tested, not an organization-owned one, and not a GitHub App.
