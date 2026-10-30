@@ -11,11 +11,11 @@ export function CopyButton({ text, label, getUrl = false }: { text: string; labe
     } catch {
       setState("fail");
     }
-    setTimeout(() => setState("idle"), 2000);
+    setTimeout(() => setState("idle"), 1800);
   }
   return (
-    <button type="button" className="btn" onClick={copy}>
-      {state === "done" ? "Copied" : state === "fail" ? "Copy failed" : label}
+    <button type="button" className="btn" onClick={copy} aria-live="polite">
+      {state === "done" ? "Copied" : state === "fail" ? "Couldn't copy" : label}
     </button>
   );
 }

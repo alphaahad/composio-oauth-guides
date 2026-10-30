@@ -5,6 +5,23 @@ import { useRef, useState } from "react";
 
 type Step = { stage: string; status: "start" | "done" | "warn"; message: string };
 
+const EXAMPLES = ["Notion", "Strava", "X"];
+
+function Icon({ status }: { status: Step["status"] }) {
+  if (status === "start") return <span className="spinner" aria-hidden="true" />;
+  return status === "warn" ? (
+    <svg className="tl-warn" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+      <circle cx="10" cy="10" r="8" />
+      <path d="M10 6v4.5M10 13.5v.01" />
+    </svg>
+  ) : (
+    <svg className="tl-done" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="10" cy="10" r="8" />
+      <path d="m6.5 10.2 2.5 2.5 4.5-5" />
+    </svg>
+  );
+}
+
 export function SearchBox() {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -13,9 +30,19 @@ export function SearchBox() {
   const [error, setError] = useState<string | null>(null);
   const abort = useRef<AbortController | null>(null);
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (busy || !query.trim()) return;
+  // A step that starts and later finishes should become one line, not two.
+  function push(ev: Step) {
+    setSteps((prev) => {
+      if (ev.status !== "start") {
+        const i = prev.map((s) => s.stage + s.status).lastIndexOf(ev.stage + "start");
+        if (i !== -1) return prev.map((s, j) => (j === i ? ev : s));
+      }
+      return [...prev, ev];
+    });
+  }
+
+  async function run(q: string) {
+    if (busy || !q.trim()) return;
     setBusy(true);
     setError(null);
     setSteps([]);
@@ -25,7 +52,7 @@ export function SearchBox() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query: q }),
         signal: abort.current.signal,
       });
       if (!res.ok || !res.body) {
@@ -45,7 +72,7 @@ export function SearchBox() {
           const line = f.split("\n").find((l) => l.startsWith("data: "));
           if (!line) continue;
           const ev = JSON.parse(line.slice(6));
-          if (ev.type === "stage") setSteps((s) => [...s, ev as Step]);
+          if (ev.type === "stage") push(ev as Step);
           else if (ev.type === "ready") {
             router.push(`/g/${ev.slug}`);
             return;
@@ -60,8 +87,14 @@ export function SearchBox() {
   }
 
   return (
-    <div>
-      <form onSubmit={submit} className="search">
+    <div id="search">
+      <form
+        className="search"
+        onSubmit={(e) => {
+          e.preventDefault();
+          run(query);
+        }}
+      >
         <label htmlFor="q" className="sr-only">
           App name or website
         </label>
@@ -69,25 +102,51 @@ export function SearchBox() {
           id="q"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="App name or website, e.g. Notion or developer.atlassian.com"
+          placeholder="Search any app, e.g. Slack or developer.atlassian.com"
           maxLength={100}
           autoComplete="off"
+          autoCapitalize="off"
+          spellCheck={false}
           disabled={busy}
         />
         <button className="btn btn-primary" disabled={busy || !query.trim()}>
-          {busy ? "Working…" : "Get guide"}
+          {busy ? "Working" : "Get guide"}
         </button>
       </form>
 
-      <div aria-live="polite" className="progress">
-        {steps.map((s, i) => (
-          <div key={i} className={`step step-${s.status}`}>
-            <span aria-hidden="true">{s.status === "warn" ? "!" : s.status === "done" ? "✓" : "…"}</span> {s.message}
-          </div>
+      <div className="chips">
+        <span>Try</span>
+        {EXAMPLES.map((e) => (
+          <button
+            key={e}
+            type="button"
+            className="chip-btn"
+            disabled={busy}
+            onClick={() => {
+              setQuery(e);
+              run(e);
+            }}
+          >
+            {e}
+          </button>
         ))}
-        {busy && steps.length > 0 && <div className="step step-start">…</div>}
+      </div>
+
+      <div className="progress" aria-live="polite">
+        {steps.length > 0 && (
+          <ol className="timeline">
+            {steps.map((s, i) => (
+              <li key={`${s.stage}-${i}`} className={`tl-item${s.stage === "fetch" && s.status === "done" ? " sub" : ""}`}>
+                <span className="tl-icon">
+                  <Icon status={s.status} />
+                </span>
+                <span>{s.message}</span>
+              </li>
+            ))}
+          </ol>
+        )}
         {error && (
-          <div role="alert" className="step step-error">
+          <div role="alert" className="search-error">
             {error}
           </div>
         )}

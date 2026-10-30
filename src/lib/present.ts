@@ -18,6 +18,36 @@ export const VERDICT_TONE: Record<Verdict, "good" | "okay" | "warn" | "bad" | "m
   unknown: "muted",
 };
 
+/** Short, answer-first headline for the UI. VERDICT_LABEL stays the plain-language phrase used in exports. */
+export const VERDICT_HEADLINE: Record<Verdict, string> = {
+  "no-approval-needed": "No approval needed",
+  "self-serve-with-review-for-listing": "Ready now. Review only to be listed",
+  "review-required": "Needs provider review first",
+  "partner-gated": "Partner access required",
+  "no-oauth": "No OAuth available",
+  unknown: "Approval path not confirmed",
+};
+
+/** Pull a big "2-4 hrs" figure out of the effort text, leaving the reasoning as a caption. */
+export function splitEffort(text: string): { big: string | null; note: string } {
+  const m = text.match(/^(\d+(?:\.\d+)?)\s*[-\u2013]\s*(\d+(?:\.\d+)?)\s*(?:hours?|hrs?)\b/i);
+  const paren = text.match(/\(([^)]*)\)/)?.[1] ?? "";
+  const note = paren
+    .replace(/^\s*(our\s+)?estimate[d]?\s*:?\s*/i, "")
+    .replace(/^\s*(estimated\s+)?(time\s+)?(to\s+)?/i, "")
+    .trim();
+  const cleaned = note ? note.charAt(0).toUpperCase() + note.slice(1) : "";
+  if (!m) return { big: null, note: text };
+  return { big: `${m[1]}\u2013${m[2]} hrs`, note: cleaned };
+}
+
+export const RISK_LEVEL: Record<string, 0 | 1 | 2 | 3> = { unknown: 0, low: 1, medium: 2, high: 3 };
+
+export function formatDate(iso: string): string {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? iso.slice(0, 10) : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+}
+
 export const CONFIDENCE_LABEL: Record<Confidence, string> = {
   tested: "Tested by us",
   docs: "From official docs",
