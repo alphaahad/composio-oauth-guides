@@ -277,7 +277,7 @@
         "evidence": [
           {
             "url": "https://docs.slack.dev/app-manifests/configuring-apps-with-app-manifests",
-            "quote": "using the refresh token in the `refresh_token` argument",
+            "quote": "In order to refresh config tokens, make a call to [`tooling.tokens.rotate`](https://docs.slack.dev/reference/methods/tooling.tokens.rotate.md), using the refresh token in the `refresh_token` argument.",
             "fetchedAt": "2026-10-30T21:20:36.000Z"
           }
         ]

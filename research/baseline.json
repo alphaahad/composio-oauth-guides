@@ -1,0 +1,482 @@
+[
+  {
+    "slug": "github",
+    "appName": "GitHub",
+    "generatedAt": "2026-10-30T21:35:39.237Z",
+    "models": [
+      "gemini-3.5-flash-lite",
+      "gemini-3.1-flash-lite",
+      "gemini-3.8-flash"
+    ],
+    "pagesChecked": [
+      "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+      "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
+      "https://docs.github.com/en/apps/sharing-github-apps/registering-a-github-app-from-a-manifest"
+    ],
+    "baseline": {
+      "text": "As a developer, the short answer is: **Creating and using a GitHub OAuth app for personal use or internal team testing is extremely easy (takes about 10 minutes). However, making it public for \"real users\" requires meeting specific security and branding requirements, though GitHub does *not* have a manual review/approval bottleneck like Apple’s App Store or Google OAuth verification.**\n\nHere is the breakdown of difficulty, timelines, requirements, and gotchas.\n\n---\n\n### 1. How Hard Is It?\n* **Difficulty:** **Low to Moderate.**\n* **Why:** GitHub’s OAuth implementation is standard and well-documented. If you have built OAuth flows for Google, Twitter, or Auth0 before, GitHub will feel very familiar. \n* **The Catch:** GitHub separates \"OAuth Apps\" (simpler, traditional) and \"GitHub Apps\" (modern, webhook-heavy, granular permissions). For most developer tools, **GitHub Apps** are now recommended, which add a little bit of architectural complexity compared to basic OAuth.\n\n### 2. How Long Does Setup Take?\n* **Building the code:** 1 to 4 hours (depending on your stack and how many API scopes you need). Most backend frameworks (Passport.js for Node, OmniAuth for Ruby, Python's Authlib, etc.) have GitHub strategies ready out of the box.\n* **Configuring the app on GitHub:** 10 minutes. You just fill out a form in your Developer Settings with your Homepage URL and Callback URL.\n\n### 3. How Long Does Approval Take?\n* **Approval Time:** **Instant (Zero days).** \n* **Explanation:** Unlike Google, which often forces you through a tedious manual security review and verification process to remove the \"Unverified App\" warning screen, **GitHub does not manually review public OAuth/GitHub Apps before they go live.** \n* As soon as you finish filling out the app settings, anyone on the internet can install or authenticate with your app. \n\n### 4. Key Requirements for Public Apps\nEven though there is no manual approval, GitHub expects public apps to adhere to professional standards. To avoid getting your app flagged or blocked, you must have:\n* **A Privacy Policy URL:** Required by GitHub if your app requests user data. You must host a basic privacy policy page.\n* **A User-Facing Homepage URL:** Where users can learn what your app does.\n* **Clear Scope Requests:** You should only request the minimum scopes (permissions) necessary (e.g., don't ask for `repo` access if you only need `user:email`).\n* **Secure Token Storage:** You are solely responsible for securely storing OAuth tokens (encrypted at rest in your database).\n\n### 5. Common Gotchas & Developer Pain Points\n\n* **OAuth Apps vs. GitHub Apps:** \n  * *OAuth Apps* act as the user. If the user leaves your company or deletes their account, you lose access.\n  * *GitHub Apps* act as themselves (or are installed on repositories/organizations). **Use a GitHub App for modern integrations**, as they are the platform standard moving forward and offer fine-grained permissions.\n* **Rate Limits are Strict:** GitHub’s REST and GraphQL APIs are heavily rate-limited based on tokens (typically 5,000 requests per hour for authenticated requests). If your app scales quickly, you will hit these limits and need to handle caching or secondary rate limits gracefully.\n* **Webhook Secret Verification:** If you use GitHub Apps, you will likely use webhooks. Forgetting to validate the webhook signature (`X-Hub-Signature-256`) is a massive security vulnerability.\n* **The \"Client Secret\" Trap:** Never hardcode your Client Secret in frontend code (like a React SPA or mobile app). Use a backend server to handle the token exchange phase of the OAuth flow.\n* **User-to-Server vs. Server-to-Server Tokens:** Make sure you understand the difference. If your app acts on behalf of a user clicking \"Login with GitHub,\" you need user-to-server tokens. If your app runs on a cron job to inspect a repo, you need a GitHub App installation token.\n\n### Summary\nYou can build, configure, and launch a public GitHub integration **in an afternoon**. Just make sure you write a simple privacy policy, host a landing page, and use the modern **GitHub Apps** framework rather than legacy OAuth apps.",
+      "claims": [
+        {
+          "claim": "Configuring a GitHub OAuth app takes approximately 10 minutes in Developer Settings.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Building the OAuth code takes between 1 to 4 hours depending on the technology stack.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "GitHub does not manually review or approve public OAuth or GitHub Apps before they go live.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Public apps require hosting a Privacy Policy URL and a User-Facing Homepage URL.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Applications must request only the minimum required scopes such as avoiding repo access if only user email is needed.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "OAuth tokens must be securely stored and encrypted at rest in the database.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "GitHub API authenticated requests are subject to a standard rate limit of 5000 requests per hour.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Webhook implementations must validate the X-Hub-Signature-256 signature for security.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Client Secrets must never be hardcoded in frontend code and must be handled via a backend server.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Developers must use GitHub Apps instead of legacy OAuth Apps for modern integrations to gain fine-grained permissions.",
+          "verdict": "supported",
+          "quote": "GitHub Apps use fine-grained permissions, give the user more control over which repositories the app can access, and use short-lived tokens.",
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app"
+        }
+      ],
+      "supported": 1,
+      "partial": 0,
+      "contradicted": 0,
+      "notAddressed": 9
+    },
+    "pipeline": {
+      "claims": 23,
+      "withQuote": 23,
+      "gapsListed": 4
+    }
+  },
+  {
+    "slug": "google",
+    "appName": "Google",
+    "generatedAt": "2026-10-30T21:35:59.550Z",
+    "models": [
+      "gemini-3.5-flash-lite",
+      "gemini-3.1-flash-lite",
+      "gemini-3.8-flash"
+    ],
+    "pagesChecked": [
+      "https://support.google.com/cloud/answer/13463073",
+      "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification",
+      "https://support.google.com/cloud/answer/13464321",
+      "https://support.google.com/cloud/answer/13465431",
+      "https://support.google.com/cloud/answer/7454865",
+      "https://support.google.com/cloud/answer/15549945"
+    ],
+    "baseline": {
+      "text": "As a developer, building the technical part of a Google OAuth integration is easy. **Getting it approved so external users can use it without seeing scary warning screens ranges from moderately annoying to soul-crushing**, depending entirely on what scopes (permissions) you are asking for.\n\nHere is the honest breakdown of difficulty, timelines, requirements, and gotchas.\n\n---\n\n### 1. How Difficult Is It?\n*   **Technical Implementation:** **2/5 (Easy).** If you’ve used Passport.js, NextAuth, Firebase Auth, or standard libraries, getting the token exchange working takes a few hours.\n*   **Administrative & Verification Process:** **4/5 (Painful).** The difficulty here isn't code; it's bureaucracy, policy compliance, and waiting on Google’s Trust & Safety team.\n\n### 2. How Long Does Setup Take?\n*   **Code Implementation:** 1 to 2 days.\n*   **Google Cloud Console Config:** 2 to 3 hours (setting up OAuth consent screens, domains, redirect URIs).\n*   **Privacy Policy & Terms of Service Writing:** 1 to 2 hours (Mandatory for verification).\n\n### 3. How Long Does Approval Take?\n*   **If your app is \"Internal\"** (only users in your Google Workspace): **Instant.** Zero approval needed.\n*   **If your app is \"External\" and uses \"Non-Sensitive\" scopes** (e.g., just basic profile and email like `userinfo.email`): **Instant.** Your app goes live immediately without Google reviewing it.\n*   **If your app uses \"Sensitive\" scopes** (e.g., reading a user's basic Google Drive metadata): **1 to 3 days.** Google will review your app.\n*   **If your app uses \"Restricted\" scopes** (e.g., full read/write access to Gmail, Google Drive files, or sending email on behalf of users): **1 to 4 weeks (sometimes longer).** You will likely have to pay for and pass a third-party security assessment.\n\n---\n\n### 4. Key Requirements for Approval\nIf you are building an app for external users that requires sensitive or restricted scopes, Google will require:\n\n1.  **A Verified Domain:** You must own the domain associated with the app and verify it via Google Search Console.\n2.  **A Public Privacy Policy & ToS:** Must be hosted on your verified domain and clearly state how user data is handled and stored.\n3.  **Accurate Branding:** Logo, app name, and developer contact info must match your public-facing brand.\n4.  **A Demonstration Video:** For restricted scopes, you **must** record a YouTube video showing the exact user flow: how a user logs in, grants permission, and how your app uses that data.\n5.  **CASA Tier 2 Assessment (for Restricted Scopes):** If you touch sensitive data (like full Gmail or Drive access), Google requires an annual security assessment by a designated third-party lab (CASA - Cloud Application Security Assessment). This can cost several hundred to a few thousand dollars and takes weeks.\n\n---\n\n### 5. Common Gotchas (Things that will trip you up)\n\n*   **The \"Unverified App\" Screen (The biggest hurdle):** If your app isn’t verified yet, any user who tries to log in will hit a massive, terrifying full-screen warning: *\"Access blocked: [App Name] has not completed the Google verification process.\"* To bypass this during development, you must manually add test users in the Google Cloud Console (up to 100 users). \n*   **Scope Creep:** Don't ask for `https://www.googleapis.com/auth/drive` if you only need to read a specific file. Google’s automated and manual reviewers will reject your app if you ask for broader permissions than your core functionality strictly requires (\"Principle of Least Privilege\").\n*   **Test User Limits:** If you are in \"Testing\" mode, refresh tokens expire every 7 days. This will break your app during testing if you forget it. You *must* move to \"In Production\" (which triggers verification) to get permanent tokens.\n*   **Vague Rejection Emails:** When Google rejects your verification request, you often get a generic template response pointing to a policy page. Decoding *why* they rejected you requires playing detective with your app's submission details.\n*   **Deleting Scopes Later:** If you add a restricted scope, get verified, and later change your code to add *another* restricted scope, you have to go through the entire verification process all over again.\n\n### Summary Advice\nIf you just want users to **sign up/log in** using Google: **It's very easy.** Just use `openid`, `email`, and `profile`. You won't need verification, and it goes live instantly.\n\nIf you need to **read/write their actual Google data**: Start small, request the absolute minimum scopes necessary, record a crystal-clear demo video, and budget at least 2–3 weeks of runway for the verification bureaucracy.",
+      "claims": [
+        {
+          "claim": "Code implementation for Google OAuth takes 1 to 2 days.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Google Cloud Console configuration takes 2 to 3 hours.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Writing a privacy policy and terms of service takes 1 to 2 hours.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Internal apps or external apps using non-sensitive scopes go live instantly with zero approval needed.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Apps using sensitive scopes require 1 to 3 days for Google review.",
+          "verdict": "contradicted",
+          "quote": "The sensitive scope verification process can take up to 10 days to complete.",
+          "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification"
+        },
+        {
+          "claim": "Apps using restricted scopes require 1 to 4 weeks for approval and potentially a third-party security assessment.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Developers must own the app domain and verify it via Google Search Console.",
+          "verdict": "supported",
+          "quote": "Verify ownership of your project's authorized domains within the Google Search Console.",
+          "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification"
+        },
+        {
+          "claim": "Developers must record a YouTube demo video showing the user flow for restricted scopes.",
+          "verdict": "supported",
+          "quote": "Prepare a video that fully demonstrates how a user initiates and grants access to the requested scopes and shows, in detail, the usage of the granted sensitive and restricted scopes in the app.",
+          "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification"
+        },
+        {
+          "claim": "In testing mode, refresh tokens expire every 7 days.",
+          "verdict": "supported",
+          "quote": "Authorizations by a test user will expire seven days from the time of consent.",
+          "url": "https://support.google.com/cloud/answer/15549945"
+        },
+        {
+          "claim": "Unverified apps in testing mode support a maximum of 100 test users manually added in the Google Cloud Console.",
+          "verdict": "supported",
+          "quote": "Projects configured with a publishing status of Testing are limited to up to 100 test users listed in the OAuth consent screen.",
+          "url": "https://support.google.com/cloud/answer/15549945"
+        },
+        {
+          "claim": "Adding a new restricted scope after initial verification requires going through the entire verification process again.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Basic login using openid, email, and profile scopes requires no verification and goes live instantly.",
+          "verdict": "supported",
+          "quote": "The only exception to this behavior is if your app requests a subset of the following: name, email address, and user profile (through the userinfo.email, userinfo.profile, openid scopes or their OpenID Connect equivalents).",
+          "url": "https://support.google.com/cloud/answer/15549945"
+        }
+      ],
+      "supported": 5,
+      "partial": 0,
+      "contradicted": 1,
+      "notAddressed": 6
+    },
+    "pipeline": {
+      "claims": 18,
+      "withQuote": 18,
+      "gapsListed": 4
+    }
+  },
+  {
+    "slug": "linkedin",
+    "appName": "LinkedIn",
+    "generatedAt": "2026-10-30T21:36:07.510Z",
+    "models": [
+      "gemini-3.5-flash-lite",
+      "gemini-3.1-flash-lite",
+      "gemini-3.8-flash"
+    ],
+    "pagesChecked": [
+      "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+      "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authentication",
+      "https://learn.microsoft.com/en-us/linkedin/marketing/getting-started?view=li-lms-2026-10"
+    ],
+    "baseline": {
+      "text": "As a developer, integrating with LinkedIn via OAuth is **moderately annoying** compared to Google or GitHub, but entirely doable. \n\nThe actual technical implementation takes a few hours. However, the **bureaucratic process** of getting your app verified so that *real users outside your organization can log in* is notoriously strict, often taking anywhere from a few days to a few weeks. LinkedIn gates its APIs tightly to prevent spam and scraping.\n\nHere is the breakdown of difficulty, timelines, requirements, and gotchas.\n\n---\n\n### 1. How Hard Is It? (Difficulty: 6/10)\n*   **The Code:** Easy. It’s standard OAuth 2.0. If you’ve implemented Google or Facebook login, LinkedIn is conceptually identical.\n*   **The Permissions (Scopes):** Moderate. LinkedIn separates everything into \"Products.\" You don't just request a scope; you have to apply for access to a specific API Product (e.g., \"Sign In with LinkedIn using OpenID Connect,\" \"Share on LinkedIn\").\n*   **The Approval:** Annoying. LinkedIn requires human review (or strict automated compliance checks) for almost anything beyond basic sign-in.\n\n### 2. How Long Does Setup Take?\n*   **Initial Code Integration:** **2 to 4 hours.** Setting up the redirect URIs, handling the authorization code exchange, and fetching the user profile.\n*   **Developer Portal Setup:** **1 hour.** Creating a developer account, verifying your company page (mandatory for most apps), and creating the app.\n\n### 3. How Long Does Approval Take?\n*   **Basic Sign-In (OpenID Connect):** Usually **instant** or within a few hours. If you just want users to log in with their name and email, it's very fast.\n*   **Advanced APIs (Posting content, fetching connections, marketing APIs):** **2 business days to 2 weeks.** Some products require manual review where you have to explain your use case, provide a privacy policy, and sometimes record a video demo of your app in action.\n\n---\n\n### 4. Key Requirements\nTo get an app approved for public use, you need:\n1.  **A LinkedIn Organization Page:** You cannot create an app as an individual developer anymore; your app *must* be tied to a verified LinkedIn Company Page.\n2.  **Privacy Policy & Terms of Service URLs:** Publicly accessible URLs explaining how you handle user data. (Non-negotiable for approval).\n3.  **App Verification:** You must verify that you own the Company Page associated with the app.\n4.  **Use Case Justification:** For higher-tier APIs, you must write a clear description of why your app needs the data and how it benefits LinkedIn users.\n\n---\n\n### 5. Common Gotchas & Developer Pain Points\n\n*   **The \"Sign In with LinkedIn\" vs. \"Sign In with LinkedIn using OpenID Connect\" Trap:** \n    LinkedIn recently deprecated their legacy \"Sign In with LinkedIn\" product in favor of the new OpenID Connect (OIDC) standard. **Use OIDC.** If you follow old tutorials, you will build an app using deprecated endpoints that will break or get rejected.\n*   **Company Page Requirement:** \n    You cannot build an app under a personal profile. If your startup or side project doesn't have a LinkedIn Company Page, you have to make one first.\n*   **Token Expiration Surprises:** \n    LinkedIn access tokens for user delegation typically expire after **60 days**. Refresh tokens have their own lifecycle rules. Make sure your app handles token refreshing gracefully, or users will have to re-authenticate every two months.\n*   **Read vs. Write Scopes are Heavily Siloed:** \n    Want to read a user's posts *and* write new ones? You may have to apply for two entirely different \"Products\" in the developer portal, and each might have a separate approval process.\n*   **V1/V2 API Shutdowns:** \n    LinkedIn frequently deprecates older API versions without much warning. Always check the documentation date to ensure you aren't writing code against legacy endpoints.\n*   **Strict Rate Limiting:** \n    LinkedIn is aggressive with rate limits, especially for endpoints that fetch network data or send messages. Build exponential backoff into your API client from day one.\n\n### Summary Advice\nIf you just want users to **log into your app**, use the **\"Sign In with LinkedIn using OpenID Connect\"** product. It is the path of least resistance and gets approved the fastest. \n\nIf you want to **automate posting or scrape data**, prepare yourself for a few days of waiting for manual approvals and be very precise in your use-case description, or your app will be rejected.",
+      "claims": [
+        {
+          "claim": "Initial code integration for OAuth takes 2 to 4 hours.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Developer portal setup takes 1 hour.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Basic Sign-In OpenID Connect approval takes instant to a few hours.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Advanced API approval takes 2 business days to 2 weeks.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "An app must be tied to a verified LinkedIn Company Page.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Publicly accessible Privacy Policy and Terms of Service URLs are required.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "LinkedIn access tokens for user delegation expire after 60 days.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Legacy Sign In with LinkedIn product is deprecated and OpenID Connect must be used.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Read and write scopes are siloed into separate products requiring individual application and approval.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Apps cannot be built under a personal profile and require a Company Page.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        }
+      ],
+      "supported": 0,
+      "partial": 0,
+      "contradicted": 0,
+      "notAddressed": 10
+    },
+    "pipeline": {
+      "claims": 14,
+      "withQuote": 14,
+      "gapsListed": 4
+    }
+  },
+  {
+    "slug": "shopify",
+    "appName": "Shopify",
+    "generatedAt": "2026-10-30T21:36:17.106Z",
+    "models": [
+      "gemini-3.5-flash-lite",
+      "gemini-3.1-flash-lite",
+      "gemini-3.8-flash"
+    ],
+    "pagesChecked": [
+      "https://shopify.dev/docs/apps/build",
+      "https://shopify.dev/docs/apps/launch/distribution",
+      "https://shopify.dev/docs/apps/launch/app-store-review",
+      "https://shopify.dev/docs/apps/launch/app-store-review/review-process"
+    ],
+    "baseline": {
+      "text": "As a developer, building and publishing a Shopify OAuth app is a well-trodden path, but it is notorious for being **bureaucratically tedious** rather than technically difficult. \n\nIf you’ve built integrations with Google, GitHub, or Stripe, the OAuth flow itself is standard. However, Shopify’s **App Store review process** is notoriously strict, and getting through it can range from mildly annoying to soul-crushing depending on your app's purpose.\n\nHere is the breakdown of difficulty, timelines, requirements, and gotchas.\n\n---\n\n### 1. How Hard Is It?\n*   **Technical Difficulty:** **Low to Medium.** Shopify provides great developer tools (CLI, Remix/Node/PHP templates, and libraries like `@shopify/shopify-app-remix`). If you understand webhooks, REST/GraphQL APIs, and OAuth 2.0, you can build a basic app in a weekend.\n*   **Approval Difficulty:** **Medium to High.** This is the real bottleneck. Shopify reviews apps not just for functionality, but for UX compliance, security, embedding standards, and adherence to strict monetization rules. It is very common for apps to be rejected on the first (or second) submission.\n\n### 2. How Long Does Setup Take?\n*   **Basic MVP / Local Setup:** **1 to 3 days.** Using the official Shopify CLI (`shopify app init`), you can spin up a boilerplate app, authenticate via OAuth, and load it inside the Shopify Admin (embedded app) in a matter of hours.\n*   **Production-Ready App:** **2 to 4 weeks.** This includes building your actual core feature, setting up a database to store offline access tokens (crucial for background webhooks), handling session storage, and setting up error logging.\n\n### 3. How Long Does Approval Take?\n*   **App Store Review:** **3 to 7 business days per submission.** \n*   **The \"Loop\":** Because rejections are common, factor in a feedback loop. If you get rejected, you fix the issue, resubmit, and wait another 3 to 5 days. **Total time from first submission to live in the App Store is usually 2 to 3 weeks.**\n*   *Note:* You *can* install unlisted (custom) apps on client stores immediately via a custom install link without App Store approval, but for a public app meant for organic discovery, you must go through the official review.\n\n---\n\n### 4. Key Requirements for Approval\nTo pass the Shopify App Store review, your app must meet rigorous standards:\n\n1.  **Embedded App Architecture:** Your app *must* load inside the Shopify Admin iframe using **App Bridge**. It cannot just redirect users to an external website unless it's strictly necessary, and even then, the primary experience should be embedded.\n2.  **Billing API Integration:** If your app is paid (or has a paid tier), you **must** use the Shopify Billing API. You cannot collect credit card info on your own external server for App Store listings. (Free apps or apps using external accounts like Klaviyo/Recharge under specific grandfathered rules are exceptions).\n3.  **GDPR/Privacy Webhooks:** You must implement three mandatory mandatory compliance webhooks:\n    *   `customers/data_request`\n    *   `customers/redact`\n    *   `shop/redact`\n    Shopify will test these during review by simulating a data deletion request.\n4.  **Session Storage:** You must securely store offline access tokens. If a merchant uninstalls and reinstalls, or if a background webhook fires days later, your app needs that token to communicate with the shop’s API.\n5.  **Polished UI:** You must use **Polaris** (Shopify’s design system). If your app looks like it was styled with Bootstrap in 2014, reviewers will reject it for failing to match the Shopify Admin aesthetic.\n\n---\n\n### 5. Common Gotchas (Watch Out For These)\n\n*   **The \"Embedded Safari Cookie\" Trap (ITP):** Safari blocks third-party cookies by default. Because embedded apps run in an iframe, the OAuth handshake will silently fail in Safari/iOS if you don't handle cookie storage correctly. *Solution: Use Shopify’s official app templates (like the Remix template), which handle JWT validation and session token exchanges automatically to bypass this.*\n*   **Failing the GDPR Webhook Test:** Developers often code the webhook endpoints, return a `200 OK`, but forget to actually delete or anonymize the user data in their database. Shopify’s automated tests check if you actually process the request.\n*   **Loading States & App Bridge:** If your app takes more than a second to load, or if routing doesn't use Shopify App Bridge (causing the whole admin page to redirect instead of just the iframe), reviewers will fail you for a \"broken user experience.\"\n*   **Scope Creep:** Don't request permissions (scopes) you don't need. If your app just edits products, but you ask for `read_customers` and `read_orders`, the review team will flag it and ask you to justify why you need customer and order data. Only request the minimum viable scopes.\n*   **Pricing Transparency:** If you offer a free trial, it must be explicitly clear. If a merchant hits a paywall inside your app without warning, or if the billing screen doesn't load cleanly through the Shopify modal, you'll be rejected.\n\n### Summary Advice\nDon't write your Shopify app from scratch. **Use the official Shopify CLI and the Remix template.** It handles the OAuth dance, session tokens, App Bridge, and Polaris UI setup out of the box. This saves you weeks of boilerplate work and keeps you compliant with Shopify's strict security standards from day one.",
+      "claims": [
+        {
+          "claim": "Build a basic app in 1 to 3 days using the official Shopify CLI and official templates.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Develop a production-ready app in 2 to 4 weeks.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Expect App Store review to take 3 to 7 business days per submission.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Expect total time from first submission to live App Store presence to be 2 to 3 weeks.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Implement embedded app architecture using App Bridge to load inside the Shopify Admin iframe.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Use the Shopify Billing API for any paid apps or paid tiers.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Implement customers/data_request, customers/redact, and shop/redact GDPR and privacy webhooks.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Securely store offline access tokens in a database.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Use Polaris as the design system for the app UI.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Request only the minimum viable API scopes needed for the app functionality.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Use Shopify official app templates like the Remix template to handle JWT validation and session token exchanges.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        }
+      ],
+      "supported": 0,
+      "partial": 0,
+      "contradicted": 0,
+      "notAddressed": 11
+    },
+    "pipeline": {
+      "claims": 12,
+      "withQuote": 12,
+      "gapsListed": 4
+    }
+  },
+  {
+    "slug": "slack",
+    "appName": "Slack",
+    "generatedAt": "2026-10-30T21:36:28.985Z",
+    "models": [
+      "gemini-3.5-flash-lite",
+      "gemini-3.1-flash-lite",
+      "gemini-3.8-flash"
+    ],
+    "pagesChecked": [
+      "https://docs.slack.dev/authentication/installing-with-oauth",
+      "https://docs.slack.dev/app-manifests/configuring-apps-with-app-manifests",
+      "https://docs.slack.dev/app-management/distribution",
+      "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide"
+    ],
+    "baseline": {
+      "text": "As a developer, building and publishing a Slack OAuth app is **moderately difficult**. The actual coding of the OAuth flow and API integration is straightforward, but navigating Slack’s documentation, scoping permissions, and passing their app review process can be frustratingly tedious.\n\nHere is a breakdown of how hard it is, timelines, requirements, and gotchas.\n\n---\n\n### 1. How Long Setup Takes\n* **Basic OAuth Flow Working:** A few hours to 1 day.\n* **Full App Development:** Varies wildly based on your product, but getting the Slack-specific integration functional usually takes 2–5 days of focused work.\n\n### 2. How Long Approval Takes (The Slack App Review)\n* **Time:** **3 to 7 business days** (though it can take longer if you hit holiday seasons or your submission is rejected on the first try).\n* **The Process:** Once you submit for public distribution, a Slack reviewer will test your app. They are strict. If they find a bug or don't understand how your app uses a scope, they will reject it, and you'll have to fix it and re-queue.\n\n---\n\n### 3. Key Requirements for Public Distribution\nIf you want *any* Slack user outside your workspace to install your app, you must submit it to the Slack App Directory (even if it's a \"private\" or paid B2B tool). To pass review, you need:\n\n1. **A Privacy Policy and Terms of Service:** Publicly accessible URLs. Slack actually checks these.\n2. **A Landing Page:** A website explaining what your app does, with clear installation buttons.\n3. **Justification for Scopes:** You must provide a \"Submission Notes\" text box explaining *why* your app needs every single permission (scope) you are requesting. \n4. **Security & Data Handling:** You must handle tokens securely (encrypted at rest in your database) and implement token revocation/reinstallation flows.\n5. **A Working Test Account:** If your app requires a login to your SaaS before connecting to Slack, you **must** provide Slack’s reviewers with valid test credentials and step-by-step instructions on how to use your app.\n\n---\n\n### 4. Common Gotchas (Watch Out for These)\n\n* **The \"Granular Permissions\" Trap:** Slack transitioned from legacy tokens to \"Granular Permissions\" (scopes starting with `channels:read`, `chat:write`, etc.). Bot scopes and User scopes are strictly separated. Make sure you are requesting the right type.\n* **Over-scoping (Instant Rejection):** If your app just posts a message to a channel, but you request `admin` or `users:read` scopes, Slack will reject your app instantly. **Principle of Least Privilege is enforced.** Only request the exact scopes you actually use in code.\n* **Token Rotation & Re-installations:** What happens when a user revokes access from Slack? Does your app gracefully handle `invalid_auth` errors, or does it crash? Slack tests for this.\n* **Socket Mode vs. HTTP Endpoints:** You can build Slack apps using WebSockets (Socket Mode - great for local development because you don't need a public HTTPS URL) or standard HTTP Request URLs. **Gotcha:** Socket Mode is amazing for dev, but make sure your architecture supports HTTP/Webhooks if you plan to scale certain enterprise features.\n* **Redirect URLs are Environment-Specific:** You will need separate Slack App configurations (or dynamic environment variables) for Local, Staging, and Production, because Slack ties your OAuth Redirect URL to a specific domain.\n\n### Summary Verdict\nIf you’ve built OAuth integrations for Google, GitHub, or Microsoft before, Slack’s OAuth is conceptually identical. The code is easy. **The real friction is Slack’s bureaucracy during the App Review phase.** Budget at least a week of buffer time just for the review and potential re-submissions before you can launch to the public.",
+      "claims": [
+        {
+          "claim": "Building a basic OAuth flow for a Slack app takes a few hours to 1 day.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Full Slack-specific integration development takes 2 to 5 days of focused work.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Slack App Review for public distribution takes 3 to 7 business days.",
+          "verdict": "contradicted",
+          "quote": "Currently, the preliminary part of the review takes up to 10 business days to receive feedback, while the functional review takes up to 10 weeks for new submissions and 6 weeks for published apps resubmitting changes.",
+          "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide"
+        },
+        {
+          "claim": "Public distribution requires publicly accessible Privacy Policy and Terms of Service URLs.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Public distribution requires a landing page explaining the app with clear installation buttons.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Developers must provide submission notes justifying every requested permission scope.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Tokens must be encrypted at rest in the database, with token revocation and reinstallation flows implemented.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Developers must provide Slack reviewers with valid test credentials and step-by-step instructions.",
+          "verdict": "partial",
+          "quote": "We aim to provide you with as smooth a review experience as we can. We request that your submitted app be in a production-ready state and that you provide us with test account credentials needed to access your service (or any third party service your app connects with) in order to install and fully test your app submission.",
+          "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide"
+        },
+        {
+          "claim": "Bot scopes and User scopes are strictly separated and granular permissions must be used.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Requesting unneeded scopes like admin or users:read will cause instant rejection under the Principle of Least Privilege.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Socket Mode uses WebSockets for local development without requiring a public HTTPS URL.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "OAuth Redirect URLs are environment-specific, requiring separate configurations or dynamic variables for Local, Staging, and Production.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        }
+      ],
+      "supported": 0,
+      "partial": 1,
+      "contradicted": 1,
+      "notAddressed": 10
+    },
+    "pipeline": {
+      "claims": 15,
+      "withQuote": 15,
+      "gapsListed": 3
+    }
+  }
+]

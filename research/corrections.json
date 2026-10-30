@@ -1,0 +1,145 @@
+[
+  {
+    "id": "google-testing-limits",
+    "area": "Docs claim",
+    "app": "Google",
+    "claim": "In Testing mode Google caps you at 100 test users, and authorizations and refresh tokens expire after 7 days.",
+    "origin": "Our own planning notes, before any source was read",
+    "outcome": "confirmed",
+    "what": "The first pages we fetched said only that a user cap applies and that refresh token lifetime is limited, with no numbers, so we could not verify either figure. A later fetch of Google's \"Manage app audience\" page states both.",
+    "quote": "Authorizations by a test user will expire seven days from the time of consent.",
+    "url": "https://support.google.com/cloud/answer/15549945"
+  },
+  {
+    "id": "google-review-time",
+    "area": "Docs claim",
+    "app": "Google",
+    "claim": "How long does sensitive-scope verification take?",
+    "origin": "Two official Google pages",
+    "outcome": "conflicting",
+    "what": "One page says up to 10 days. Another says it might take several months, depending on the data's sensitivity. We did not pick one: the guide shows both and labels the claim as conflicting.",
+    "quote": "The sensitive scope verification process can take up to 10 days to complete.",
+    "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification"
+  },
+  {
+    "id": "unaided-google-review",
+    "area": "Unaided answer",
+    "app": "Google",
+    "claim": "Apps using sensitive scopes need 1 to 3 days for Google review.",
+    "origin": "A plain, single-prompt answer from the same model",
+    "outcome": "corrected",
+    "what": "Contradicted by the official page. Hand-reviewed.",
+    "quote": "The sensitive scope verification process can take up to 10 days to complete.",
+    "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification"
+  },
+  {
+    "id": "unaided-slack-review",
+    "area": "Unaided answer",
+    "app": "Slack",
+    "claim": "Slack App Review for public distribution takes 3 to 7 business days.",
+    "origin": "A plain, single-prompt answer from the same model",
+    "outcome": "corrected",
+    "what": "Contradicted: the preliminary review alone can take up to 10 business days, and a functional review of up to 10 weeks follows. This understates the wait by an order of magnitude. Hand-reviewed.",
+    "quote": "Currently, the preliminary part of the review takes up to 10 business days to receive feedback, while the functional review takes up to 10 weeks for new submissions and 6 weeks for published apps resubmitting changes.",
+    "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide"
+  },
+  {
+    "id": "github-callback-rules",
+    "area": "Docs claim",
+    "app": "GitHub",
+    "claim": "GitHub's callback URL rules are just \"up to 10 callback URLs\".",
+    "origin": "A first research pass, which only read the creation page",
+    "outcome": "corrected",
+    "what": "The authorizing-apps page describes more: wildcard matching is now configurable per callback URL, apps created before August 3, 2026 have it switched on, and loopback URLs may use any port. Reading one more page changed the advice.",
+    "quote": "Apps that had a single callback URL enabled prior to August 3, 2026 have wildcard matching enabled for that callback URL.",
+    "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps"
+  },
+  {
+    "id": "slack-manifest-api",
+    "area": "Our tooling",
+    "app": "Slack",
+    "claim": "The automatic draft said Slack apps are \"web dashboard only\" and left the verdict unknown.",
+    "origin": "This product's own pipeline",
+    "outcome": "corrected",
+    "what": "The curated guide found what the draft missed: apps can be created through an API from a manifest, with one human step to generate the first token. This is why seeds are curated by hand and live guides are labeled as not human-verified.",
+    "quote": "is used to create apps from JSON manifests.",
+    "url": "https://docs.slack.dev/app-manifests/configuring-apps-with-app-manifests"
+  },
+  {
+    "id": "x-verdict-quote",
+    "area": "Our tooling",
+    "app": "X",
+    "claim": "A live guide gave X the verdict \"works immediately; review only to be listed\".",
+    "origin": "This product's own pipeline",
+    "outcome": "corrected",
+    "what": "The quote it cited was real and on the page, so the existence check passed, but it said nothing about review or listing. The support check caught it and reset the verdict to unknown. This is why every claim gets two checks, not one.",
+    "quote": "Some endpoints require user-context authentication (OAuth 1.0a or 2.0)",
+    "url": "https://docs.x.com/make-your-first-request"
+  },
+  {
+    "id": "notion-webhooks-api",
+    "area": "Our tooling",
+    "app": "Notion",
+    "claim": "A live guide labeled Notion \"creatable through an API\".",
+    "origin": "This product's own pipeline",
+    "outcome": "corrected",
+    "what": "The label was inferred from an unrelated verified item about webhooks. The setup method now needs its own supporting quote, otherwise it shows as not stated.",
+    "quote": "",
+    "url": ""
+  },
+  {
+    "id": "no-approval-absence",
+    "area": "Our tooling",
+    "app": "GitHub",
+    "claim": "\"No approval needed\" is backed by the quote \"Click Register application.\"",
+    "origin": "Our first GitHub seed",
+    "outcome": "corrected",
+    "what": "No quote can prove that something is absent. The second review flagged it. These verdicts are now labeled as inferred from what the official pages do not mention, and are only allowed when at least two official pages were read.",
+    "quote": "",
+    "url": ""
+  },
+  {
+    "id": "model-not-available",
+    "area": "Our tooling",
+    "app": "Gemini",
+    "claim": "gemini-2.5-flash is a safe default model.",
+    "origin": "Our own assumption",
+    "outcome": "corrected",
+    "what": "It appears in the model list but returns \"no longer available to new users\". A probe also showed no model offers search grounding on this tier, and one model hung for 44 seconds before failing. The app now tries several models in order, with a deadline and a cooldown for any that just failed.",
+    "quote": "",
+    "url": ""
+  },
+  {
+    "id": "german-google-page",
+    "area": "Our tooling",
+    "app": "Google",
+    "claim": "Correct English quotes verify against Google's pages.",
+    "origin": "Our own assumption",
+    "outcome": "corrected",
+    "what": "One Google page came back in German, so English quotes could never match. The fetcher now asks for English. Separately, GitHub's markdown embeds SVG icons inside sentences, which also broke correct quotes. The matcher now sees through links and inline HTML.",
+    "quote": "",
+    "url": ""
+  },
+  {
+    "id": "typeform-link-following",
+    "area": "Our tooling",
+    "app": "Typeform",
+    "claim": "A keyword score is enough to find the OAuth page from a docs landing page.",
+    "origin": "Our own assumption",
+    "outcome": "corrected",
+    "what": "Typeform's page lives at get-started/applications, which scored zero. The model now chooses which links to follow, reading the anchor text, and keywords remain only as a fallback. After the change, Typeform went from nothing found to 12 of 12 claims backed by quotes.",
+    "quote": "",
+    "url": ""
+  },
+  {
+    "id": "linkedin-stale-scopes",
+    "area": "Docs claim",
+    "app": "LinkedIn",
+    "claim": "LinkedIn's OAuth overview and its access guide agree on which permissions are open.",
+    "origin": "Comparing two official pages",
+    "outcome": "conflicting",
+    "what": "The overview page still gives older scope names as examples. The guide notes this so developers check the current list.",
+    "quote": "Open permissions available to all applications are of this type such as `r_liteprofile`, `r_emailaddress`, and `w_member_social`.",
+    "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authentication"
+  }
+]

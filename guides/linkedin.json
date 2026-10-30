@@ -206,7 +206,7 @@
       "evidence": [
         {
           "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authentication",
-          "quote": "such as r_liteprofile, r_emailaddress, and w_member_social.",
+          "quote": "Open permissions available to all applications are of this type such as `r_liteprofile`, `r_emailaddress`, and `w_member_social`.",
           "fetchedAt": "2026-10-30T21:50:00.000Z"
         }
       ]

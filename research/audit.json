@@ -1,0 +1,110 @@
+{
+  "generatedAt": "2026-10-30T21:37:37.253Z",
+  "guides": [
+    {
+      "slug": "github",
+      "appName": "GitHub",
+      "claims": 25,
+      "byConfidence": {
+        "docs": 23,
+        "conflicting": 0,
+        "inferred": 2,
+        "unknown": 0,
+        "tested": 0,
+        "reported": 0
+      },
+      "evidenceItems": 25,
+      "quotesFoundOnPage": 25,
+      "judge": {
+        "checked": 23,
+        "notSupported": 0,
+        "partlySupported": 4
+      },
+      "gaps": 4
+    },
+    {
+      "slug": "google",
+      "appName": "Google",
+      "claims": 25,
+      "byConfidence": {
+        "docs": 24,
+        "conflicting": 1,
+        "inferred": 0,
+        "unknown": 0,
+        "tested": 0,
+        "reported": 0
+      },
+      "evidenceItems": 30,
+      "quotesFoundOnPage": 30,
+      "judge": {
+        "checked": 24,
+        "notSupported": 0,
+        "partlySupported": 1
+      },
+      "gaps": 4
+    },
+    {
+      "slug": "linkedin",
+      "appName": "LinkedIn",
+      "claims": 20,
+      "byConfidence": {
+        "docs": 19,
+        "conflicting": 0,
+        "inferred": 0,
+        "unknown": 1,
+        "tested": 0,
+        "reported": 0
+      },
+      "evidenceItems": 19,
+      "quotesFoundOnPage": 19,
+      "judge": {
+        "checked": 19,
+        "notSupported": 1,
+        "partlySupported": 2
+      },
+      "gaps": 4
+    },
+    {
+      "slug": "shopify",
+      "appName": "Shopify",
+      "claims": 19,
+      "byConfidence": {
+        "docs": 18,
+        "conflicting": 0,
+        "inferred": 0,
+        "unknown": 1,
+        "tested": 0,
+        "reported": 0
+      },
+      "evidenceItems": 20,
+      "quotesFoundOnPage": 20,
+      "judge": {
+        "checked": 18,
+        "notSupported": 0,
+        "partlySupported": 1
+      },
+      "gaps": 4
+    },
+    {
+      "slug": "slack",
+      "appName": "Slack",
+      "claims": 24,
+      "byConfidence": {
+        "docs": 24,
+        "conflicting": 0,
+        "inferred": 0,
+        "unknown": 0,
+        "tested": 0,
+        "reported": 0
+      },
+      "evidenceItems": 28,
+      "quotesFoundOnPage": 28,
+      "judge": {
+        "checked": 24,
+        "notSupported": 1,
+        "partlySupported": 3
+      },
+      "gaps": 3
+    }
+  ]
+}

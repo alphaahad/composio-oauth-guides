@@ -31,7 +31,7 @@ export const DEFAULT_MODELS = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite",
 // Which models are currently failing, shared across requests so one overloaded model is not retried every time.
 const cooldown: Cooldown = new Map();
 
-function jsonSchema(schema: z.ZodType): unknown {
+export function jsonSchema(schema: z.ZodType): unknown {
   const s = z.toJSONSchema(schema) as Record<string, unknown>;
   delete s.$schema;
   return s;

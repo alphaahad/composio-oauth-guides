@@ -29,9 +29,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </span>
               OAuth Guides
             </Link>
-            <Link href="/#guides" className="nav-link">
-              Guides
-            </Link>
+            <nav className="nav">
+              <Link href="/#guides" className="nav-link">
+                Guides
+              </Link>
+              <Link href="/verification" className="nav-link">
+                How we verify
+              </Link>
+            </nav>
           </div>
         </header>
         {children}
