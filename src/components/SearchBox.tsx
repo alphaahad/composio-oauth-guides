@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 
 type Step = { stage: string; status: "start" | "done" | "warn"; message: string };
 
-const EXAMPLES = ["Notion", "Strava", "X"];
+const EXAMPLES = ["Linear", "Typeform", "Strava", "X"]; // apps without a curated guide, so these show live generation
 
 function Icon({ status }: { status: Step["status"] }) {
   if (status === "start") return <span className="spinner" aria-hidden="true" />;
