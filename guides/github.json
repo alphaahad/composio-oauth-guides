@@ -1,0 +1,361 @@
+{
+  "slug": "github",
+  "appName": "GitHub",
+  "website": "https://github.com",
+  "origin": "seed",
+  "humanReviewed": false,
+  "generatedAt": "2026-10-30T18:30:00.000Z",
+  "usesOAuth": "yes",
+  "verdict": {
+    "value": "no-approval-needed",
+    "claim": {
+      "text": "GitHub's OAuth app creation guide describes registration only. It mentions no review or approval step (absence on this page is not a guarantee).",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "quote": "Click Register application.",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    }
+  },
+  "summary": "Self-serve. You register an OAuth app in Developer settings with a short form and can use it right away. The real decisions are OAuth App versus GitHub App (GitHub recommends GitHub Apps) and how strictly to match callback URLs, which GitHub changed recently.",
+  "composio": {
+    "managed": "yes",
+    "note": "Composio lists a managed OAuth app for GitHub. You may not need your own unless you want your own branding, scopes beyond the defaults, or dedicated rate limits.",
+    "evidence": [
+      {
+        "url": "https://docs.composio.dev/toolkits/managed-auth",
+        "quote": "Composio-managed OAuth available",
+        "fetchedAt": "2026-10-30T18:20:00.000Z"
+      }
+    ]
+  },
+  "effort": {
+    "text": "0.25-0.5 hours of developer work (estimate: one short web form, then wiring the callback URL into your app)",
+    "confidence": "inferred",
+    "evidence": []
+  },
+  "wait": {
+    "text": "No review wait is described: the creation page lists no review step.",
+    "confidence": "docs",
+    "evidence": [
+      {
+        "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+        "quote": "Click Register application.",
+        "fetchedAt": "2026-10-30T18:22:00.000Z"
+      }
+    ]
+  },
+  "blockerRisk": {
+    "value": "low",
+    "claim": {
+      "text": "low (our judgment: no gated step is documented)",
+      "confidence": "inferred",
+      "evidence": []
+    }
+  },
+  "scopeTiers": [],
+  "steps": [
+    {
+      "text": "Open Settings from your profile picture (top right of any GitHub page).",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "quote": "click your profile picture, then click Settings",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "In the left sidebar choose Developer settings, then OAuth apps.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "quote": "In the left sidebar, click OAuth apps",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Click New OAuth App. On a first app the button reads Register a new application.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "quote": "this button will say, Register a new application",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Enter a homepage URL: the full URL to your app's website.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "quote": "type the full URL to your app's website",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Enter your callback URL. You can add up to 10 with Add callback URL.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "quote": "type the callback URL of your app",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Decide on Device Flow and on expiring user tokens (expiring tokens are on by default).",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "quote": "Expire user access tokens is enabled by default.",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Click Register application.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "quote": "Click Register application.",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    }
+  ],
+  "redirectRules": [
+    {
+      "text": "Up to 10 callback URLs per app.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "quote": "You can enter up to 10 callback URLs.",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "redirect_uri is optional. If you omit it, GitHub redirects to the first callback URL configured.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
+          "quote": "GitHub will redirect users to the first callback URL configured in the OAuth app settings.",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "With wildcard matching off, the redirect URL must exactly match a callback URL. It is configurable per callback URL.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
+          "quote": "When wildcard matching is disabled, the redirect URL must exactly match the callback URL.",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Apps with a single callback URL created before August 3, 2026 have wildcard matching on. Turn it off if you do not need it.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
+          "quote": "Apps that had a single callback URL enabled prior to August 3, 2026 have wildcard matching enabled for that callback URL.",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Loopback redirect URLs may use any port, so native/desktop apps need not register each port.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
+          "quote": "The redirect_uri does not need to match the port specified in the callback URL for the app.",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "For loopback, use 127.0.0.1 or ::1 rather than localhost.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
+          "quote": "OAuth RFC recommends not to use localhost, but instead to use loopback literal 127.0.0.1 or IPv6 ::1",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Create the app under your personal account or any organization where you are an administrator.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "quote": "under your personal account or under any organization you have administrative access to",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "A user or organization can own up to 100 OAuth apps.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "quote": "A user or organization can own up to 100 OAuth apps.",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Only put information in the app that you consider public.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "quote": "Only use information in your OAuth app that you consider public.",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    }
+  ],
+  "gotchas": [
+    {
+      "text": "GitHub recommends building a GitHub App instead of an OAuth app.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "quote": "Consider building a GitHub App instead of an OAuth app.",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "OAuth apps can only act on behalf of a user; GitHub Apps can also act independently.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "quote": "OAuth apps can only act on behalf of a user while GitHub Apps can either act on behalf of a user or independently of a user.",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "If your code does not yet handle short-lived tokens, uncheck expiring tokens until it does.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "quote": "If your app's authentication code hasn't been updated to support short-lived tokens, uncheck the box until support is added.",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Wildcard callback matching is a security risk: it lets an attacker send codes to any matching subdomain or path.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
+          "quote": "Enabling wildcard matching can expose your app to security risks",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "PKCE, if you use it, must be S256. The plain method is not supported.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
+          "quote": "Must be S256 - the plain code challenge method is not supported.",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "GitHub Apps (not OAuth apps) can be created from a manifest, but a person must still confirm in the browser and all three steps must finish within one hour.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/sharing-github-apps/registering-a-github-app-from-a-manifest",
+          "quote": "You must complete all three steps in the GitHub App Manifest flow within one hour.",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        },
+        {
+          "url": "https://docs.github.com/en/apps/sharing-github-apps/registering-a-github-app-from-a-manifest",
+          "quote": "The person registering the app will be redirected to a GitHub page",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        }
+      ]
+    }
+  ],
+  "automation": {
+    "surface": "ui-only",
+    "agentCan": [],
+    "youMust": []
+  },
+  "blocked": {
+    "contacts": [],
+    "usualRejections": []
+  },
+  "probes": [],
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+      "title": "Creating an OAuth app - GitHub Docs",
+      "fetchedAt": "2026-10-30T18:22:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
+      "title": "Authorizing OAuth apps - GitHub Docs",
+      "fetchedAt": "2026-10-30T18:22:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://docs.github.com/en/apps/sharing-github-apps/registering-a-github-app-from-a-manifest",
+      "title": "Registering a GitHub App from a manifest - GitHub Docs",
+      "fetchedAt": "2026-10-30T18:22:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://docs.composio.dev/toolkits/managed-auth",
+      "title": "Managed OAuth apps - Composio",
+      "fetchedAt": "2026-10-30T18:20:00.000Z",
+      "status": "ok",
+      "note": "official"
+    }
+  ],
+  "gaps": [
+    "Agent-versus-human split is not filled in yet: it will come from a real setup attempt, not from the docs.",
+    "Scope documentation (Scopes for OAuth apps) was not reviewed for this guide.",
+    "No review process is documented for OAuth apps, so there is no review contact or rejection list. GitHub Marketplace listing review was not covered.",
+    "Whether GitHub offers an API to create OAuth apps is not stated on the pages read; absence from the docs is not proof that none exists."
+  ]
+}

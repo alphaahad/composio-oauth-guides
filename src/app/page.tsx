@@ -1,69 +1,48 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Link from "next/link";
+import { Badge } from "@/components/Claims";
+import { SearchBox } from "@/components/SearchBox";
+import { VERDICT_LABEL, VERDICT_TONE } from "@/lib/present";
+import type { Confidence } from "@/lib/schema";
+import { listSeeds } from "@/lib/store";
 
-export default function Home() {
+const LEGEND: Confidence[] = ["tested", "docs", "reported", "inferred", "unknown"];
+
+export default async function Home() {
+  const seeds = await listSeeds();
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="wrap">
+      <h1>Will this OAuth app take an hour or a month?</h1>
+      <p className="muted">
+        Look up an app to see whether you need your own OAuth app, how much work it is, how long approval may take, and where an agent can help
+        versus where you take over. Every claim shows its source, or says it is unverified.
+      </p>
+
+      <SearchBox />
+
+      <h2>Ready-made guides</h2>
+      {seeds.length === 0 ? (
+        <p className="muted">No curated guides yet. Search for any app above to generate one live.</p>
+      ) : (
+        <div className="grid">
+          {seeds.map((g) => (
+            <Link key={g.slug} href={`/g/${g.slug}`} className="card">
+              <h3>{g.appName}</h3>
+              <span className={`chip chip-${VERDICT_TONE[g.verdict.value]}`}>{VERDICT_LABEL[g.verdict.value]}</span>
+              <p style={{ marginTop: "0.5rem" }}>{g.summary}</p>
+            </Link>
+          ))}
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+
+      <h2>How to read the labels</h2>
+      <div className="legend">
+        {LEGEND.map((l) => (
+          <Badge key={l} level={l} />
+        ))}
+      </div>
+      <p className="muted" style={{ fontSize: "0.85rem", marginTop: "0.5rem" }}>
+        Guides generated live are not human-verified. Quotes are checked by code against the fetched pages; anything that fails is marked unverified.
+      </p>
+    </main>
   );
 }
