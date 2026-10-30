@@ -1,0 +1,72 @@
+Google Cloud: real OAuth setup attempt
+
+Date: 2026-10-31. The account owner signed in to a personal Google account first, typing their own credentials. The agent then
+drove the Cloud Console in the browser pane.
+
+Redactions: the client ID is shortened, and no client secret or email address appears here. A client secret was displayed once
+by Google when the client was created. The agent did not copy or store it. Nothing was published and nothing was submitted for
+Google's verification. The project is a throwaway test project.
+
+What the agent did
+
+1. Created a new project, composio-oauth-guides-test. The form needed only a name. The page showed a banner "Start your free trial with $300 in credit", which we did not use.
+2. Opened Google Auth Platform and ran its setup wizard: App Information, Audience, Contact Information, Finish.
+3. Created a Web application OAuth client.
+4. Edited the client's redirect URI, and inspected the Audience, Branding, Data access and Verification centre pages.
+
+Observations
+
+The new-project form said: "You have 8 projects remaining in your quota."
+Before setup, Google Auth Platform said: "Google auth platform not configured yet".
+
+Audience choices in the wizard:
+Internal: "Only available to users within your organisation. You will not need to submit your app for verification."
+External: "Available to any test user with a Google Account. Your app will start in testing mode and will only be available to users that you add to the list of test users. Once your app is ready to push to production, you may need to verify your app."
+
+Human gate: the Finish step requires ticking "I agree to the Google API services user data policy." The agent stopped and asked the account owner, who gave a clear yes, and the agent then ticked it. An agent should not accept this on its own.
+
+The OAuth client form offered these application types: Web application, Android, Chrome extension, iOS, TVs and Limited Input devices, Desktop app.
+The form said: "Note: It may take five minutes to a few hours for settings to take effect".
+The form also had a checkbox: "Use this client for an AI-powered agent". We did not test what it changes.
+
+Redirect URI tests
+
+We entered http://example.com/cb as the redirect URI and clicked Create. Google created the client with no error.
+After that, the Audience page said: "Setting publishing status as 'In production' is restricted to projects using HTTPS URLs only. To publish your app, edit your OAuth clients and remove non-HTTPS URLs from the clients page."
+The scopes panel said: "Certain scopes are unavailable because usage of these scopes is restricted to projects using HTTPS URLs only."
+We replaced the redirect URI with http://localhost:3000/api/auth/callback and saved: "OAuth client saved". Both warnings disappeared, so localhost over http is exempt.
+
+Client secret
+
+On creation, Google showed a dialog: "You will no longer be able to view or download the client secret once you close this dialogue."
+The same dialog said: "OAuth access is restricted to the test users listed on your OAuth consent screen."
+
+Publishing, branding and verification
+
+The Audience page said: "To publish your app, you must complete your configuration on the Branding page."
+The Branding page said about the app logo: "After you upload a logo, you will need to submit your app for verification unless the app is configured for internal use only or has a publishing status of 'Testing'."
+The Branding page also asked for an application home page, privacy policy link, terms of service link and authorised domains.
+The Audience page said: "Allowed user cap prior to app verification is 100, and is counted over the entire lifetime of the app."
+It showed: "0 users (0 test, 0 other) / 100 user cap".
+The Verification centre said: "Verification is not required since your app is configured with a testing publishing status."
+
+Scope tiers in the console
+
+The Data access page has three tables: your non-sensitive scopes, your sensitive scopes, and your restricted scopes.
+It describes them: "Restricted scopes are scopes that request access to highly sensitive user data."
+We added https://www.googleapis.com/auth/gmail.readonly in the manual scopes box, and it appeared under the restricted scopes table as "View your email messages and settings". We discarded the change without saving.
+The scopes panel said: "Only scopes for enabled APIs are listed below. To add a missing scope to this screen, find and enable the API in the Google API Library or use the Pasted Scopes text box below."
+The clients page had a button: "Restore deleted OAuth clients".
+
+Human gates met
+
+- Signing in to the Google account (and 2FA, if enabled) is the account owner's job.
+- Accepting the Google API services user data policy needs the account owner's explicit agreement.
+- Copying the client secret has to happen at creation, because it is shown once.
+
+Not done
+
+- We did not publish the app, add test users, or submit anything for verification, so review times come from the docs only.
+- We did not run an OAuth authorization or a token exchange.
+- We did not measure the "five minutes to a few hours" settings delay.
+- We did not test an organization-owned (Internal) project.

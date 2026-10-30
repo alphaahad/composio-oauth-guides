@@ -66,6 +66,28 @@
     "url": "/evidence/github/attempt-2026-10-31.txt"
   },
   {
+    "id": "google-https-late",
+    "area": "Tested",
+    "app": "Google",
+    "claim": "Google enforces HTTPS redirect URIs when you create an OAuth client.",
+    "origin": "A common assumption, and what the docs imply",
+    "outcome": "corrected",
+    "what": "In our real attempt, Google created a client with a plain http redirect URI on a non-localhost host without any error. The restriction only appeared afterwards: publishing to production was blocked, and some scopes were hidden, until the URI was removed. Localhost over http is exempt. A developer who builds on http only finds out at the end.",
+    "quote": "We entered http://example.com/cb as the redirect URI and clicked Create. Google created the client with no error.",
+    "url": "/evidence/google/attempt-2026-10-31.txt"
+  },
+  {
+    "id": "google-terms-gate",
+    "area": "Tested",
+    "app": "Google",
+    "claim": "An agent can complete the Google consent-screen setup on its own once you are signed in.",
+    "origin": "Our own expectation before the attempt",
+    "outcome": "corrected",
+    "what": "Nearly all of it, yes, but not the last step: the wizard requires agreeing to Google's API services user data policy, which only the account owner can accept. The agent stopped and asked. The client secret is also shown only once, so someone has to capture it at creation.",
+    "quote": "Accepting the Google API services user data policy needs the account owner's explicit agreement.",
+    "url": "/evidence/google/attempt-2026-10-31.txt"
+  },
+  {
     "id": "slack-manifest-api",
     "area": "Our tooling",
     "app": "Slack",

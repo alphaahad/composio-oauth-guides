@@ -4,7 +4,7 @@
   "website": "https://developers.google.com",
   "origin": "seed",
   "humanReviewed": false,
-  "generatedAt": "2026-10-30T21:45:00.000Z",
+  "generatedAt": "2026-10-31T01:30:00.000Z",
   "usesOAuth": "yes",
   "verdict": {
     "value": "depends",
@@ -20,7 +20,7 @@
       ]
     }
   },
-  "summary": "It depends on the scopes you request. Sign-in and other non-sensitive scopes need no verification. Sensitive scopes need Google's OAuth verification, and restricted scopes (such as broad Gmail or Drive access) add an annual third-party security assessment. Until you are verified, the app is capped at 100 new users.",
+  "summary": "It depends on the scopes you request. Sign-in and other non-sensitive scopes need no verification. Sensitive scopes need Google's OAuth verification, and restricted scopes (such as broad Gmail or Drive access) add an annual third-party security assessment. We set up a real test project: it took a few console steps, one terms checkbox only the account owner can accept, and no review. The catch is later: Google accepts an http redirect URI at creation, then blocks publishing until it is removed.",
   "composio": {
     "managed": "yes",
     "note": "Composio lists managed OAuth apps for Gmail, Google Drive and other Google services. For these you can skip Google's verification yourself, because the app that users authorize is Composio's. You need your own only for your own branding, extra scopes, or dedicated quota, and then verification applies to you.",
@@ -104,9 +104,53 @@
           "fetchedAt": "2026-10-30T21:40:00.000Z"
         }
       ]
+    },
+    {
+      "text": "Tested: in the console, gmail.readonly is listed as a restricted scope.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "We added https://www.googleapis.com/auth/gmail.readonly in the manual scopes box, and it appeared under the restricted scopes table",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
     }
   ],
   "steps": [
+    {
+      "text": "Create a Google Cloud project. The form needed only a name.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "The form needed only a name.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Open Google Auth Platform and run its four-step setup wizard: App Information, Audience, Contact Information, Finish.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "Opened Google Auth Platform and ran its setup wizard: App Information, Audience, Contact Information, Finish.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Create an OAuth client of type Web application and add your redirect URIs.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "Created a Web application OAuth client.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
     {
       "text": "Choose the audience: External is open to any Google account. Internal limits the app to your organization.",
       "confidence": "docs",
@@ -190,7 +234,46 @@
       ]
     }
   ],
-  "redirectRules": [],
+  "redirectRules": [
+    {
+      "text": "Tested: Google accepted a plain http:// redirect URI on a non-localhost host when the client was created.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "We entered http://example.com/cb as the redirect URI and clicked Create. Google created the client with no error.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Tested: that URI then blocked publishing to production and hid some scopes until it was removed.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "Setting publishing status as 'In production' is restricted to projects using HTTPS URLs only.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        },
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "Certain scopes are unavailable because usage of these scopes is restricted to projects using HTTPS URLs only.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Tested: http://localhost is exempt from the HTTPS-only restriction.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "Both warnings disappeared, so localhost over http is exempt.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    }
+  ],
   "requirements": [
     {
       "text": "Your homepage cannot be only a login page.",
@@ -296,12 +379,172 @@
           "fetchedAt": "2026-10-30T21:40:00.000Z"
         }
       ]
+    },
+    {
+      "text": "The client secret is shown once, when you create the client.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "You will no longer be able to view or download the client secret once you close this dialogue.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "The client form warns that settings can take five minutes to a few hours to take effect.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "Note: It may take five minutes to a few hours for settings to take effect",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Uploading an app logo triggers a verification requirement unless the app stays in Testing.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "After you upload a logo, you will need to submit your app for verification unless the app is configured for internal use only or has a publishing status of",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "To publish, you must first complete the Branding page.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "To publish your app, you must complete your configuration on the Branding page.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "The scope picker lists only scopes for APIs you have enabled. Paste any others in by hand.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "Only scopes for enabled APIs are listed below.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "While in Testing, the Verification centre says verification is not required.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "Verification is not required since your app is configured with a testing publishing status.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "The console shows the 100-user cap, counted over the app's lifetime.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "Allowed user cap prior to app verification is 100, and is counted over the entire lifetime of the app.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Deleted OAuth clients can be restored from the clients page.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "Restore deleted OAuth clients",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
     }
   ],
   "automation": {
-    "surface": "unknown",
-    "agentCan": [],
+    "surface": "ui-only",
+    "surfaceClaim": {
+      "text": "We created the project, consent screen and client by driving the console's web interface.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/google/attempt-2026-10-31.txt",
+          "quote": "The agent then drove the Cloud Console in the browser pane.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    "agentCan": [
+      {
+        "text": "Create a project, run the consent-screen wizard, and create and edit an OAuth client.",
+        "confidence": "tested",
+        "evidence": [
+          {
+            "url": "/evidence/google/attempt-2026-10-31.txt",
+            "quote": "Opened Google Auth Platform and ran its setup wizard",
+            "fetchedAt": "2026-10-31T00:00:00.000Z"
+          },
+          {
+            "url": "/evidence/google/attempt-2026-10-31.txt",
+            "quote": "Created a Web application OAuth client.",
+            "fetchedAt": "2026-10-31T00:00:00.000Z"
+          }
+        ]
+      },
+      {
+        "text": "Read how the console classifies scopes and what blocks publishing.",
+        "confidence": "tested",
+        "evidence": [
+          {
+            "url": "/evidence/google/attempt-2026-10-31.txt",
+            "quote": "The Data access page has three tables: your non-sensitive scopes, your sensitive scopes, and your restricted scopes.",
+            "fetchedAt": "2026-10-31T00:00:00.000Z"
+          }
+        ]
+      }
+    ],
     "youMust": [
+      {
+        "text": "Sign in to the Google account. The agent cannot enter credentials.",
+        "confidence": "tested",
+        "evidence": [
+          {
+            "url": "/evidence/google/attempt-2026-10-31.txt",
+            "quote": "Signing in to the Google account (and 2FA, if enabled) is the account owner's job.",
+            "fetchedAt": "2026-10-31T00:00:00.000Z"
+          }
+        ]
+      },
+      {
+        "text": "Agree to the Google API services user data policy. The agent stopped and asked first.",
+        "confidence": "tested",
+        "evidence": [
+          {
+            "url": "/evidence/google/attempt-2026-10-31.txt",
+            "quote": "Accepting the Google API services user data policy needs the account owner's explicit agreement.",
+            "fetchedAt": "2026-10-31T00:00:00.000Z"
+          }
+        ]
+      },
+      {
+        "text": "Copy the client secret at creation, because it is shown only once.",
+        "confidence": "tested",
+        "evidence": [
+          {
+            "url": "/evidence/google/attempt-2026-10-31.txt",
+            "quote": "Copying the client secret has to happen at creation, because it is shown once.",
+            "fetchedAt": "2026-10-31T00:00:00.000Z"
+          }
+        ]
+      },
       {
         "text": "Verify the domain in Search Console with a project Owner or Editor account.",
         "confidence": "docs",
@@ -436,7 +679,9 @@
   "gaps": [
     "Two official pages disagree on how long sensitive-scope verification takes (up to 10 days versus several months). We show both.",
     "No timeline or cost is stated for the restricted-scope security assessment.",
-    "Redirect URI rules were not covered by the pages read.",
-    "How much of the console setup an agent can do is not documented. A real setup attempt will test it."
+    "We did not publish the app, add test users, or submit for verification, so every review time here comes from the docs.",
+    "The client form has a checkbox, \"Use this client for an AI-powered agent\". We did not find out what it changes.",
+    "We did not measure the five-minutes-to-a-few-hours settings delay, and we did not test an organization-owned (Internal) project.",
+    "Redirect URI rules beyond the HTTPS one we tested were not covered by the pages read."
   ]
 }
