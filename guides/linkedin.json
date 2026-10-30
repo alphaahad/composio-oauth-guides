@@ -1,0 +1,342 @@
+{
+  "slug": "linkedin",
+  "appName": "LinkedIn",
+  "website": "https://learn.microsoft.com/en-us/linkedin/",
+  "origin": "seed",
+  "humanReviewed": false,
+  "generatedAt": "2026-10-30T21:55:00.000Z",
+  "usesOAuth": "yes",
+  "verdict": {
+    "value": "depends",
+    "claim": {
+      "text": "Only the open permissions are available without approval. Most permissions and partner programs need LinkedIn's explicit approval.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+          "quote": "Most permissions and partner programs require explicit approval from LinkedIn.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    }
+  },
+  "summary": "It depends on what you need. Sign in with LinkedIn and Share on LinkedIn are self-serve: add the product to your app and go. Anything beyond that (advertising, sales, talent, learning) needs LinkedIn's approval or a partner program, and the docs state no timeline for any of them.",
+  "composio": {
+    "managed": "yes",
+    "note": "Composio lists a managed OAuth app for LinkedIn, which covers the open permissions. LinkedIn Ads is listed separately as bring-your-own, so for advertising you register and get approved yourself.",
+    "evidence": [
+      {
+        "url": "https://docs.composio.dev/toolkits/managed-auth",
+        "quote": "Composio-managed OAuth available",
+        "fetchedAt": "2026-10-30T18:20:00.000Z"
+      },
+      {
+        "url": "https://docs.composio.dev/toolkits/managed-auth",
+        "quote": "| [LinkedIn](/toolkits/linkedin.md) | `LINKEDIN` |",
+        "fetchedAt": "2026-10-30T18:20:00.000Z"
+      },
+      {
+        "url": "https://docs.composio.dev/toolkits/managed-auth",
+        "quote": "| [Linkedin Ads](/toolkits/linkedin_ads.md) | `LINKEDIN_ADS` |",
+        "fetchedAt": "2026-10-30T18:20:00.000Z"
+      }
+    ]
+  },
+  "effort": {
+    "text": "0.5-1 hours to set up the app (our estimate: create the app and add a self-serve product; partner programs take far longer and are not included)",
+    "confidence": "inferred",
+    "evidence": []
+  },
+  "wait": {
+    "text": "Not stated in the sources we read",
+    "confidence": "unknown",
+    "evidence": []
+  },
+  "blockerRisk": {
+    "value": "high",
+    "claim": {
+      "text": "high for anything beyond the open permissions (our judgment: approval or partner programs, with no timeline or criteria published)",
+      "confidence": "inferred",
+      "evidence": []
+    }
+  },
+  "scopeTiers": [
+    {
+      "text": "Open permissions (Sign in with LinkedIn, Share on LinkedIn) are available to all developers without special approval.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+          "quote": "Open Permissions are the only permissions that are available to all developers without special approval.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Advertising API permissions must be approved.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+          "quote": "Developers seeking to build a marketing related integration using Advertising API permissions must be approved.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Compliance permissions are closed and cannot be requested.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+          "quote": "Access is closed and may not be requested.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "text": "Create an app in the LinkedIn Developer Portal. Products can then be enabled on it.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+          "quote": "LinkedIn products can be enabled after creating a new application.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "For the open permissions, add the product yourself on the Products tab of your app page.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+          "quote": "may be added via self-service through the LinkedIn [Developer Portal](https://www.linkedin.com/developers/), under the Products tab on your application page.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "For advertising, apply by adding the Advertising API product to your app.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+          "quote": "You can apply for access through the [Developer Portal](https://www.linkedin.com/developers/). To do this, select your app from [My Apps](https://www.linkedin.com/developers/apps), navigate to the Products tab, and add the Advertising API product.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Once accepted into the Development Tier, you can manage up to 5 ad accounts.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/linkedin/marketing/getting-started",
+          "quote": "Add up to 5 accounts to manage in the Development Tier.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "For sales integrations, you must be approved as a Sales Navigator Application Platform (SNAP) partner.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+          "quote": "must be approved as a Sales Navigator Application Platform (SNAP) partner.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Talent integrations go through partner programs you can apply to.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+          "quote": "Developers seeking to build talent related integrations through one of the programs listed below can [apply here](https://business.linkedin.com/talent-solutions/ats-partners/partner-application).",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "For learning integrations, request access through the LinkedIn Learning API space.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+          "quote": "Developers seeking to build a learning related integration should refer to the [Request API Access](../../learning/getting-started/request-access) page within the LinkedIn Learning API space.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    }
+  ],
+  "redirectRules": [],
+  "requirements": [
+    {
+      "text": "All the marketing permission scopes are 3-legged: they need explicit consent from a LinkedIn member.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/linkedin/marketing/getting-started",
+          "quote": "All these permission scopes are 3-legged permissions requiring explicit consent from a LinkedIn member.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "The 2-legged client credentials flow is not available for any marketing use case.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/linkedin/marketing/getting-started",
+          "quote": "The 2-legged client credentials flow is not available for any marketing use cases.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    }
+  ],
+  "gotchas": [
+    {
+      "text": "The OAuth overview page still gives r_liteprofile and r_emailaddress as examples of open permissions.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authentication",
+          "quote": "such as r_liteprofile, r_emailaddress, and w_member_social.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "The Development Tier caps you at 5 ad accounts until you are approved for more.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/linkedin/marketing/getting-started",
+          "quote": "Add up to 5 accounts to manage in the Development Tier.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    }
+  ],
+  "automation": {
+    "surface": "gated",
+    "surfaceClaim": {
+      "text": "Most access is behind an approval or partner application, not something an agent can complete.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+          "quote": "Most permissions and partner programs require explicit approval from LinkedIn.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    "agentCan": [],
+    "youMust": [
+      {
+        "text": "Apply for Advertising API access by adding the product to your app.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+            "quote": "You can apply for access through the [Developer Portal](https://www.linkedin.com/developers/). To do this, select your app from [My Apps](https://www.linkedin.com/developers/apps), navigate to the Products tab, and add the Advertising API product.",
+            "fetchedAt": "2026-10-30T21:50:00.000Z"
+          }
+        ]
+      },
+      {
+        "text": "Apply to become a SNAP partner for sales integrations.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+            "quote": "must be approved as a Sales Navigator Application Platform (SNAP) partner.",
+            "fetchedAt": "2026-10-30T21:50:00.000Z"
+          }
+        ]
+      },
+      {
+        "text": "Apply to a partner program for talent integrations.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+            "quote": "Developers seeking to build talent related integrations through one of the programs listed below can [apply here](https://business.linkedin.com/talent-solutions/ats-partners/partner-application).",
+            "fetchedAt": "2026-10-30T21:50:00.000Z"
+          }
+        ]
+      }
+    ]
+  },
+  "blocked": {
+    "contacts": [],
+    "usualRejections": []
+  },
+  "probes": [
+    {
+      "name": "OpenID Connect discovery",
+      "url": "https://www.linkedin.com/oauth/.well-known/openid-configuration",
+      "ok": true,
+      "status": 200,
+      "finding": "authorize: https://www.linkedin.com/oauth/v2/authorization; token: https://www.linkedin.com/oauth/v2/accessToken; no dynamic client registration advertised; 3 scopes advertised",
+      "probedAt": "2026-10-30T21:27:46.655Z"
+    },
+    {
+      "name": "OAuth server metadata (RFC 8414)",
+      "url": "https://www.linkedin.com/.well-known/oauth-authorization-server",
+      "ok": false,
+      "status": 404,
+      "finding": "not published (HTTP 404)",
+      "probedAt": "2026-10-30T21:27:47.164Z"
+    },
+    {
+      "name": "OpenID Connect discovery",
+      "url": "https://www.linkedin.com/.well-known/openid-configuration",
+      "ok": false,
+      "status": 404,
+      "finding": "not published (HTTP 404)",
+      "probedAt": "2026-10-30T21:27:47.164Z"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+      "title": "Getting access to LinkedIn APIs - Microsoft Learn",
+      "fetchedAt": "2026-10-30T21:50:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authentication",
+      "title": "Authenticating with OAuth 2.0 overview - Microsoft Learn",
+      "fetchedAt": "2026-10-30T21:50:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/linkedin/marketing/getting-started",
+      "title": "Marketing API getting started - Microsoft Learn",
+      "fetchedAt": "2026-10-30T21:50:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://docs.composio.dev/toolkits/managed-auth",
+      "title": "Managed OAuth apps - Composio",
+      "fetchedAt": "2026-10-30T18:20:00.000Z",
+      "status": "ok",
+      "note": "official"
+    }
+  ],
+  "gaps": [
+    "None of the pages read states a review or approval timeline for any LinkedIn product.",
+    "No approval criteria are published for the Advertising API Development Tier, and no rejection reasons were found.",
+    "Redirect URL rules were not covered by the pages read.",
+    "We did not set up a LinkedIn app ourselves. Everything here comes from the docs."
+  ]
+}

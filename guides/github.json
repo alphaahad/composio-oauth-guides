@@ -9,8 +9,8 @@
   "verdict": {
     "value": "no-approval-needed",
     "claim": {
-      "text": "GitHub's OAuth app creation guide describes registration only. It mentions no review or approval step (absence on this page is not a guarantee).",
-      "confidence": "docs",
+      "text": "None of the 3 official pages we read describes a review or approval step, so we infer none is required.",
+      "confidence": "inferred",
       "evidence": [
         {
           "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
@@ -29,6 +29,11 @@
         "url": "https://docs.composio.dev/toolkits/managed-auth",
         "quote": "Composio-managed OAuth available",
         "fetchedAt": "2026-10-30T18:20:00.000Z"
+      },
+      {
+        "url": "https://docs.composio.dev/toolkits/managed-auth",
+        "quote": "| [GitHub](/toolkits/github.md) | `GITHUB` |",
+        "fetchedAt": "2026-10-30T18:20:00.000Z"
       }
     ]
   },
@@ -38,15 +43,9 @@
     "evidence": []
   },
   "wait": {
-    "text": "No review wait is described: the creation page lists no review step.",
-    "confidence": "docs",
-    "evidence": [
-      {
-        "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
-        "quote": "Click Register application.",
-        "fetchedAt": "2026-10-30T18:22:00.000Z"
-      }
-    ]
+    "text": "No review wait: none of the pages we read describes a review step.",
+    "confidence": "inferred",
+    "evidence": []
   },
   "blockerRisk": {
     "value": "low",
@@ -73,6 +72,11 @@
       "text": "In the left sidebar choose Developer settings, then OAuth apps.",
       "confidence": "docs",
       "evidence": [
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "quote": "In the left sidebar, click Developer settings",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        },
         {
           "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
           "quote": "In the left sidebar, click OAuth apps",
@@ -103,7 +107,7 @@
       ]
     },
     {
-      "text": "Enter your callback URL. You can add up to 10 with Add callback URL.",
+      "text": "Enter your callback URL.",
       "confidence": "docs",
       "evidence": [
         {
@@ -154,6 +158,11 @@
       "evidence": [
         {
           "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
+          "quote": "The redirect_uri parameter is optional.",
+          "fetchedAt": "2026-10-30T18:22:00.000Z"
+        },
+        {
+          "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
           "quote": "GitHub will redirect users to the first callback URL configured in the OAuth app settings.",
           "fetchedAt": "2026-10-30T18:22:00.000Z"
         }
@@ -182,7 +191,7 @@
       ]
     },
     {
-      "text": "Loopback redirect URLs may use any port, so native/desktop apps need not register each port.",
+      "text": "Loopback redirect URLs can use a different port than the registered callback URL.",
       "confidence": "docs",
       "evidence": [
         {
@@ -274,12 +283,12 @@
       ]
     },
     {
-      "text": "Wildcard callback matching is a security risk: it lets an attacker send codes to any matching subdomain or path.",
+      "text": "Wildcard callback matching is a security risk: it lets an attacker send authorization codes to any subdomain or subdirectory of the callback URL.",
       "confidence": "docs",
       "evidence": [
         {
           "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
-          "quote": "Enabling wildcard matching can expose your app to security risks",
+          "quote": "Enabling wildcard matching can expose your app to security risks, because it allows an attacker to send authorization codes to any subdomain or subdirectory of the callback URL.",
           "fetchedAt": "2026-10-30T18:22:00.000Z"
         }
       ]
@@ -296,17 +305,23 @@
       ]
     },
     {
-      "text": "GitHub Apps (not OAuth apps) can be created from a manifest, but a person must still confirm in the browser and all three steps must finish within one hour.",
+      "text": "GitHub Apps (not OAuth apps) can be registered from a manifest, but all three steps of the flow must finish within one hour.",
       "confidence": "docs",
       "evidence": [
         {
           "url": "https://docs.github.com/en/apps/sharing-github-apps/registering-a-github-app-from-a-manifest",
           "quote": "You must complete all three steps in the GitHub App Manifest flow within one hour.",
           "fetchedAt": "2026-10-30T18:22:00.000Z"
-        },
+        }
+      ]
+    },
+    {
+      "text": "In the manifest flow, the person registering is redirected to a GitHub page where they confirm.",
+      "confidence": "docs",
+      "evidence": [
         {
           "url": "https://docs.github.com/en/apps/sharing-github-apps/registering-a-github-app-from-a-manifest",
-          "quote": "The person registering the app will be redirected to a GitHub page",
+          "quote": "The person registering the app will be redirected to a GitHub page with an input field",
           "fetchedAt": "2026-10-30T18:22:00.000Z"
         }
       ]
@@ -321,7 +336,24 @@
     "contacts": [],
     "usualRejections": []
   },
-  "probes": [],
+  "probes": [
+    {
+      "name": "OAuth server metadata (RFC 8414)",
+      "url": "https://github.com/.well-known/oauth-authorization-server",
+      "ok": false,
+      "status": 404,
+      "finding": "not published (HTTP 404)",
+      "probedAt": "2026-10-30T21:27:45.066Z"
+    },
+    {
+      "name": "OpenID Connect discovery",
+      "url": "https://github.com/.well-known/openid-configuration",
+      "ok": false,
+      "status": 404,
+      "finding": "not published (HTTP 404)",
+      "probedAt": "2026-10-30T21:27:45.073Z"
+    }
+  ],
   "sources": [
     {
       "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",

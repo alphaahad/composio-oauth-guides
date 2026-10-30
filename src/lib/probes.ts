@@ -45,6 +45,20 @@ export function describeMetadata(m: Record<string, unknown>): string {
   return bits.join("; ");
 }
 
+/** Probe one specific URL, e.g. a provider's discovery document at a non-standard path. */
+export async function probeUrl(name: string, url: string): Promise<ProbeResult> {
+  const probedAt = new Date().toISOString();
+  try {
+    const r = await getJson(url);
+    if (r.json && typeof r.json === "object") {
+      return { name, url, ok: true, status: r.status, finding: describeMetadata(r.json as Record<string, unknown>), probedAt };
+    }
+    return { name, url, ok: false, status: r.status, finding: r.status ? `not published (HTTP ${r.status})` : "not reachable", probedAt };
+  } catch (e) {
+    return { name, url, ok: false, finding: `probe failed: ${e instanceof Error ? e.message : "error"}`, probedAt };
+  }
+}
+
 /** Credential-free probes of well-known discovery documents. Most providers publish none; that is itself a finding. */
 export async function probeOrigins(origins: string[]): Promise<ProbeResult[]> {
   const unique = [...new Set(origins)].slice(0, 3);

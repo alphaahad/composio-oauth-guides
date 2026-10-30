@@ -40,6 +40,7 @@ export const Verdict = z.enum([
   "self-serve-with-review-for-listing", // works immediately, review only to be listed/public
   "review-required", // must pass provider review before real users can connect
   "partner-gated", // access limited to approved partners/programs
+  "depends", // some features/scopes/distribution models are gated and others are not
   "no-oauth", // app does not offer OAuth (API key etc.)
   "unknown",
 ]);

@@ -5,6 +5,7 @@ export const VERDICT_LABEL: Record<Verdict, string> = {
   "self-serve-with-review-for-listing": "Works immediately; review only to be listed",
   "review-required": "Provider review required before real users can connect",
   "partner-gated": "Partner-gated access",
+  depends: "Depends on what you build: some paths are open, others need approval",
   "no-oauth": "No OAuth (uses another auth method)",
   unknown: "Verdict unknown",
 };
@@ -14,6 +15,7 @@ export const VERDICT_TONE: Record<Verdict, "good" | "okay" | "warn" | "bad" | "m
   "self-serve-with-review-for-listing": "okay",
   "review-required": "warn",
   "partner-gated": "bad",
+  depends: "warn",
   "no-oauth": "muted",
   unknown: "muted",
 };
@@ -24,6 +26,7 @@ export const VERDICT_HEADLINE: Record<Verdict, string> = {
   "self-serve-with-review-for-listing": "Ready now. Review only to be listed",
   "review-required": "Needs provider review first",
   "partner-gated": "Partner access required",
+  depends: "Depends on what you build",
   "no-oauth": "No OAuth available",
   unknown: "Approval path not confirmed",
 };

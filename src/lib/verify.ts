@@ -15,6 +15,9 @@ const MAX_QUOTE = 400;
 /** Collapse the differences that don't change meaning (case, whitespace, smart quotes, markdown markers). */
 export function normalize(s: string): string {
   return s
+    // markdown links and inline HTML sit in the middle of sentences on some docs sites; matching must see through them
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/<\/?[a-z][a-z0-9-]*(\s[^>]*)?\/?>/gi, " ")
     .replace(/[‘’‛]/g, "'")
     .replace(/[“”„]/g, '"')
     .replace(/[‐-―−]/g, "-")

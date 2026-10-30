@@ -1,0 +1,424 @@
+{
+  "slug": "slack",
+  "appName": "Slack",
+  "website": "https://slack.com",
+  "origin": "seed",
+  "humanReviewed": false,
+  "generatedAt": "2026-10-30T21:30:00.000Z",
+  "usesOAuth": "yes",
+  "verdict": {
+    "value": "self-serve-with-review-for-listing",
+    "claim": {
+      "text": "Unlisted distribution works for pilots, but apps meant for commercial distribution should be submitted and approved for listing in the Slack Marketplace.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/app-management/distribution",
+          "quote": "Distributing your unlisted app is perfect for when you want to test out your app by running a pilot for early customers; however, apps intended for commercial distribution should be submitted and approved for listing in the Slack Marketplace.",
+          "fetchedAt": "2026-10-30T21:20:36.000Z"
+        }
+      ]
+    }
+  },
+  "summary": "Self-serve to build, install and distribute an unlisted app. A Slack Marketplace listing needs a review that Slack says takes up to about 10 weeks, and the app must first be installed on 10 active workspaces. Slack is also one of the few providers where the app itself can be created through an API.",
+  "composio": {
+    "managed": "yes",
+    "note": "Composio lists a managed OAuth app for Slack. You may not need your own unless you want your own branding, scopes beyond the defaults, or dedicated rate limits.",
+    "evidence": [
+      {
+        "url": "https://docs.composio.dev/toolkits/managed-auth",
+        "quote": "Composio-managed OAuth available",
+        "fetchedAt": "2026-10-30T18:20:00.000Z"
+      },
+      {
+        "url": "https://docs.composio.dev/toolkits/managed-auth",
+        "quote": "| [Slack](/toolkits/slack.md) | `SLACK` |",
+        "fetchedAt": "2026-10-30T18:20:00.000Z"
+      }
+    ]
+  },
+  "effort": {
+    "text": "0.5-1.5 hours to set up the app (our estimate: create the app, add scopes, set a redirect URL, install it; excludes Marketplace listing)",
+    "confidence": "inferred",
+    "evidence": []
+  },
+  "wait": {
+    "text": "Marketplace listing only: the preliminary review takes up to 10 business days, then the functional review up to 10 weeks (6 weeks for resubmissions). Not needed to use an unlisted app.",
+    "confidence": "docs",
+    "evidence": [
+      {
+        "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide",
+        "quote": "Currently, the preliminary part of the review takes up to 10 business days to receive feedback, while the functional review takes up to 10 weeks for new submissions and 6 weeks for published apps resubmitting changes.",
+        "fetchedAt": "2026-10-30T21:20:36.000Z"
+      }
+    ]
+  },
+  "blockerRisk": {
+    "value": "medium",
+    "claim": {
+      "text": "medium (our judgment: low to build, but a Marketplace listing has a long review and a 10-workspace prerequisite)",
+      "confidence": "inferred",
+      "evidence": []
+    }
+  },
+  "scopeTiers": [
+    {
+      "text": "Bot scopes and user scopes are requested separately.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/authentication/installing-with-oauth",
+          "quote": "Bot scopes should be added as `scope=<bot_scope>`, and user scopes should be added as `user_scope=<user_scope>`.",
+          "fetchedAt": "2026-10-30T21:20:36.000Z"
+        }
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "text": "Create a Slack app from the apps page.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/app-management/quickstart-app-settings.md",
+          "quote": "Create a Slack app via the apps page by selecting the following button: [Create an app](https://api.slack.com/apps?new_app=1)",
+          "fetchedAt": "2026-10-30T21:19:53.546Z"
+        }
+      ]
+    },
+    {
+      "text": "Open OAuth & Permissions and add the bot scopes your app needs.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/app-management/quickstart-app-settings.md",
+          "quote": "1. Within OAuth & Permissions, scroll down to Scopes. 2. Under Bot Token Scopes, select Add an OAuth Scope.",
+          "fetchedAt": "2026-10-30T21:19:53.546Z"
+        }
+      ]
+    },
+    {
+      "text": "Tell Slack where to send the temporary code by including a redirect_uri, or configure a Redirect URL in the app settings.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/authentication/installing-with-oauth",
+          "quote": "Include a `redirect_uri` parameter in the URL above.",
+          "fetchedAt": "2026-10-30T21:20:36.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Install the app to your workspace.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/app-management/quickstart-app-settings.md",
+          "quote": "1. Scroll back to the top of the OAuth & Permissions page. 2. Install your app by selecting the Install to Workspace button.",
+          "fetchedAt": "2026-10-30T21:19:53.546Z"
+        }
+      ]
+    },
+    {
+      "text": "To let other workspaces install it without a listing, activate public distribution.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/app-management/distribution",
+          "quote": "Click **Activate Public Distribution**.",
+          "fetchedAt": "2026-10-30T21:20:36.000Z"
+        }
+      ]
+    }
+  ],
+  "redirectRules": [
+    {
+      "text": "The redirect_uri and any configured Redirect URL must use HTTPS.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/authentication/installing-with-oauth",
+          "quote": "The `redirect_uri` must use HTTPS. Alternatively, you can configure a Redirect URL in the **App Management** page under **OAuth & Permissions**. A Redirect URL must also use HTTPS.",
+          "fetchedAt": "2026-10-30T21:20:36.000Z"
+        }
+      ]
+    },
+    {
+      "text": "A Redirect URL cannot contain an anchor (#).",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/authentication/installing-with-oauth",
+          "quote": "A Redirect URL can _not_ contain an anchor (`#`).",
+          "fetchedAt": "2026-10-30T21:20:36.000Z"
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Before submitting to the Marketplace, the app must be installed on 10 or more active workspaces.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide",
+          "quote": "Your app has been installed on 10 or more active workspaces and the service has been tested on those workspaces in accordance with the above bullet.",
+          "fetchedAt": "2026-10-30T21:20:36.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Reviewers need test account credentials for your service, not access to your Slack workspace.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide",
+          "quote": "provide us with test account credentials needed to access your service",
+          "fetchedAt": "2026-10-30T21:20:36.000Z"
+        },
+        {
+          "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide",
+          "quote": "We cannot access any Slack workspaces (even created for testing)",
+          "fetchedAt": "2026-10-30T21:20:36.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Slack reviews faster with a short video demo of the install, OAuth flow and end-to-end use.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide",
+          "quote": "You can help us review your app more quickly by providing us with a short video demo.",
+          "fetchedAt": "2026-10-30T21:20:36.000Z"
+        },
+        {
+          "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide",
+          "quote": "it should include a video showing the full installation and OAuth flow, set-up process, and end-to-end functionality",
+          "fetchedAt": "2026-10-30T21:20:36.000Z"
+        }
+      ]
+    }
+  ],
+  "gotchas": [
+    {
+      "text": "The temporary authorization code expires after ten minutes.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/authentication/installing-with-oauth",
+          "quote": "which expires after ten minutes",
+          "fetchedAt": "2026-10-30T21:20:36.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Scopes are additive across installs. You cannot remove one from an existing token without revoking it.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/authentication/installing-with-oauth",
+          "quote": "There is no way to remove scopes from an existing token without revoking it entirely.",
+          "fetchedAt": "2026-10-30T21:20:36.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Some workspaces only let administrators approve app installs, so your users may need an admin.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/app-management/distribution",
+          "quote": "Some workspaces will restrict app installation so that only workspace administrators can provide authorization.",
+          "fetchedAt": "2026-10-30T21:20:36.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Slack will not speed up the review to match your launch date, so plan the timeline early.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide",
+          "quote": "We are unable to skip or accelerate the review process in order to coordinate with your launch",
+          "fetchedAt": "2026-10-30T21:20:36.000Z"
+        }
+      ]
+    }
+  ],
+  "automation": {
+    "surface": "manifest",
+    "surfaceClaim": {
+      "text": "Apps can be created from a JSON manifest through an API.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://docs.slack.dev/app-manifests/configuring-apps-with-app-manifests",
+          "quote": "[`apps.manifest.create`](https://docs.slack.dev/reference/methods/apps.manifest.create.md) is used to create apps from JSON manifests.",
+          "fetchedAt": "2026-10-30T21:20:36.000Z"
+        }
+      ]
+    },
+    "agentCan": [
+      {
+        "text": "Create an app from a JSON manifest through the apps.manifest.create API method.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://docs.slack.dev/app-manifests/configuring-apps-with-app-manifests",
+            "quote": "[`apps.manifest.create`](https://docs.slack.dev/reference/methods/apps.manifest.create.md) is used to create apps from JSON manifests.",
+            "fetchedAt": "2026-10-30T21:20:36.000Z"
+          }
+        ]
+      },
+      {
+        "text": "Keep the config token alive by rotating it with its refresh token.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://docs.slack.dev/app-manifests/configuring-apps-with-app-manifests",
+            "quote": "using the refresh token in the `refresh_token` argument",
+            "fetchedAt": "2026-10-30T21:20:36.000Z"
+          }
+        ]
+      }
+    ],
+    "youMust": [
+      {
+        "text": "Create the first app configuration token, which the manifest API requires. It expires after 12 hours.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://docs.slack.dev/app-manifests/configuring-apps-with-app-manifests",
+            "quote": "Each of these API methods should be used with an",
+            "fetchedAt": "2026-10-30T21:20:36.000Z"
+          },
+          {
+            "url": "https://docs.slack.dev/app-manifests/configuring-apps-with-app-manifests",
+            "quote": "Each app configuration token will expire 12 hours after it has been generated.",
+            "fetchedAt": "2026-10-30T21:20:36.000Z"
+          }
+        ]
+      },
+      {
+        "text": "A workspace admin may need to approve the install, because some workspaces restrict who can authorize apps.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://docs.slack.dev/app-management/distribution",
+            "quote": "Some workspaces will restrict app installation so that only workspace administrators can provide authorization.",
+            "fetchedAt": "2026-10-30T21:20:36.000Z"
+          }
+        ]
+      },
+      {
+        "text": "Submit to the Marketplace and supply test accounts if you want a listing.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://docs.slack.dev/app-management/distribution",
+            "quote": "apps intended for commercial distribution should be submitted and approved for listing in the Slack Marketplace",
+            "fetchedAt": "2026-10-30T21:20:36.000Z"
+          },
+          {
+            "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide",
+            "quote": "provide us with test account credentials needed to access your service",
+            "fetchedAt": "2026-10-30T21:20:36.000Z"
+          }
+        ]
+      }
+    ]
+  },
+  "blocked": {
+    "contacts": [],
+    "usualRejections": [
+      {
+        "text": "Slack returns apps with bugs, poor user experience or repeated low-quality issues and asks for more work before resubmitting.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide",
+            "quote": "If your app is submitted with bugs, poor user experience, or we repeatedly run into issues of low quality when reviewing, we will return it and ask you to spend more time on it before resubmitting.",
+            "fetchedAt": "2026-10-30T21:20:36.000Z"
+          }
+        ]
+      }
+    ]
+  },
+  "probes": [
+    {
+      "name": "OAuth server metadata (RFC 8414)",
+      "url": "https://slack.com/.well-known/oauth-authorization-server",
+      "ok": false,
+      "status": 404,
+      "finding": "not published (HTTP 404)",
+      "probedAt": "2026-10-30T21:19:53.552Z"
+    },
+    {
+      "name": "OpenID Connect discovery",
+      "url": "https://slack.com/.well-known/openid-configuration",
+      "ok": true,
+      "status": 200,
+      "finding": "authorize: https://slack.com/openid/connect/authorize; token: https://slack.com/api/openid.connect.token; no dynamic client registration advertised; 3 scopes advertised",
+      "probedAt": "2026-10-30T21:19:53.552Z"
+    },
+    {
+      "name": "OAuth server metadata (RFC 8414)",
+      "url": "https://docs.slack.dev/.well-known/oauth-authorization-server",
+      "ok": false,
+      "status": 404,
+      "finding": "not published (HTTP 404)",
+      "probedAt": "2026-10-30T21:19:53.552Z"
+    },
+    {
+      "name": "OpenID Connect discovery",
+      "url": "https://docs.slack.dev/.well-known/openid-configuration",
+      "ok": false,
+      "status": 404,
+      "finding": "not published (HTTP 404)",
+      "probedAt": "2026-10-30T21:19:53.552Z"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.slack.dev/authentication/installing-with-oauth",
+      "title": "Installing with OAuth | Slack Developer Docs",
+      "fetchedAt": "2026-10-30T21:20:36.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://docs.slack.dev/app-manifests/configuring-apps-with-app-manifests",
+      "title": "Configuring apps with app manifests | Slack Developer Docs",
+      "fetchedAt": "2026-10-30T21:20:36.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://docs.slack.dev/app-management/distribution",
+      "title": "Distributing apps | Slack Developer Docs",
+      "fetchedAt": "2026-10-30T21:20:36.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide",
+      "title": "Slack Marketplace review guide | Slack Developer Docs",
+      "fetchedAt": "2026-10-30T21:20:36.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://docs.composio.dev/toolkits/managed-auth",
+      "title": "Managed OAuth apps - Composio",
+      "fetchedAt": "2026-10-30T18:20:00.000Z",
+      "status": "ok",
+      "note": "official"
+    }
+  ],
+  "gaps": [
+    "We did not try the Slack setup ourselves: no test workspace was available. The manifest API details come from the docs only.",
+    "No official support or contact channel was found in the pages read, so the contacts list is empty.",
+    "Slack's Marketplace app guidelines and the list of restricted scopes were not read in full."
+  ]
+}

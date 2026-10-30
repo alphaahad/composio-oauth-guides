@@ -1,0 +1,352 @@
+{
+  "slug": "shopify",
+  "appName": "Shopify",
+  "website": "https://shopify.dev",
+  "origin": "seed",
+  "humanReviewed": false,
+  "generatedAt": "2026-10-30T21:55:00.000Z",
+  "usesOAuth": "yes",
+  "verdict": {
+    "value": "depends",
+    "claim": {
+      "text": "To list on the Shopify App Store, an app must be submitted to Shopify's App Approval team.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://shopify.dev/docs/apps/launch/app-store-review",
+          "quote": "When you're ready to distribute your app on the Shopify App Store, you need to submit it to Shopify's App Approval team and make sure it meets all requirements.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    }
+  },
+  "summary": "Two paths, chosen up front and permanent. A custom app is installed by one organization directly, with no listing and no review, but cannot use Shopify's billing. A public app can be installed on many stores but must pass App Approval and register for the App Store, which has a one-time fee. No review timeline is published.",
+  "composio": {
+    "managed": "no",
+    "note": "Composio lists Shopify as bring-your-own: you register the app yourself and supply its client ID and secret, so Shopify's review rules apply to you directly.",
+    "evidence": [
+      {
+        "url": "https://docs.composio.dev/toolkits/managed-auth",
+        "quote": "Bring your own OAuth app",
+        "fetchedAt": "2026-10-30T18:20:00.000Z"
+      },
+      {
+        "url": "https://docs.composio.dev/toolkits/managed-auth",
+        "quote": "| [Shopify](/toolkits/shopify.md) | `SHOPIFY` |",
+        "fetchedAt": "2026-10-30T18:20:00.000Z"
+      }
+    ]
+  },
+  "effort": {
+    "text": "1-3 hours to set up the app (our estimate: create the app, pick the distribution method, configure authentication; excludes App Store listing work)",
+    "confidence": "inferred",
+    "evidence": []
+  },
+  "wait": {
+    "text": "Not stated in the sources we read",
+    "confidence": "unknown",
+    "evidence": []
+  },
+  "blockerRisk": {
+    "value": "medium",
+    "claim": {
+      "text": "medium (our judgment: none for a custom app, a full review cycle at stake for a public one)",
+      "confidence": "inferred",
+      "evidence": []
+    }
+  },
+  "scopeTiers": [],
+  "steps": [
+    {
+      "text": "Choose the distribution method first. You cannot change it afterwards.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://shopify.dev/docs/apps/launch/distribution",
+          "quote": "You can't change the distribution method after you select it.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Create the app in the Shopify CLI or the Dev Dashboard. Both work against the same app record.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://shopify.dev/docs/apps/build",
+          "quote": "Shopify CLI and the Dev Dashboard both work against the same app record, so you can create an app in either one.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Public apps only: register for the Shopify App Store, which has a one-time fee.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://shopify.dev/docs/apps/launch/distribution",
+          "quote": "Public distribution also requires registering for the Shopify App Store, which has a one-time fee.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Public apps only: submit to Shopify's App Approval team and meet all requirements.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://shopify.dev/docs/apps/launch/app-store-review",
+          "quote": "When you're ready to distribute your app on the Shopify App Store, you need to submit it to Shopify's App Approval team and make sure it meets all requirements.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Your app moves through Draft, Submitted, Reviewed and Published.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://shopify.dev/docs/apps/launch/app-store-review/review-process",
+          "quote": "During the review process your app changes status: Draft, Submitted, Reviewed, and Published.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    }
+  ],
+  "redirectRules": [],
+  "requirements": [
+    {
+      "text": "A custom app can be installed on a single store, stores in the same Plus organization, or development stores.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://shopify.dev/docs/apps/launch/distribution",
+          "quote": "Installed on a single Shopify store, on multiple stores that belong to the same Plus organization, or on [development stores](https://shopify.dev/docs/apps/build/stores/development-stores#limitations)",
+          "fetchedAt": "2026-10-30T21:55:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "A public app can be installed on multiple Shopify stores.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://shopify.dev/docs/apps/launch/distribution",
+          "quote": "Can be installed on multiple Shopify stores",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "A custom app cannot charge merchants through Shopify's app billing system.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://shopify.dev/docs/apps/launch/distribution",
+          "quote": "Can't charge merchants through [Shopify's app billing system](https://shopify.dev/docs/apps/launch/billing)",
+          "fetchedAt": "2026-10-30T21:55:00.000Z"
+        }
+      ]
+    }
+  ],
+  "gotchas": [
+    {
+      "text": "A custom app takes a different path: one organization installs it directly, with no listing and no review.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://shopify.dev/docs/apps/build",
+          "quote": "A custom app takes the other path: one organization installs it directly, with no listing and no review.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "A rejection costs you a full review cycle, so read the requirements before submitting.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://shopify.dev/docs/apps/build",
+          "quote": "Read the [requirements](https://shopify.dev/docs/apps/launch/shopify-app-store/app-store-requirements) before you submit, because a rejection costs you a full review cycle.",
+          "fetchedAt": "2026-10-30T21:55:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "If core requirements are not met, the app moves to Paused and you get an email listing the required changes.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://shopify.dev/docs/apps/launch/app-store-review/review-process",
+          "quote": "If your app doesn't meet core requirements that prevent a reviewer from reviewing your app, then your app moves to the Paused status",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        },
+        {
+          "url": "https://shopify.dev/docs/apps/launch/app-store-review/review-process",
+          "quote": "and then you'll receive an email that outlines required changes.",
+          "fetchedAt": "2026-10-30T21:55:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Admin-created custom apps with a pre-generated token can no longer be created, though existing ones keep working.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://shopify.dev/docs/apps/launch/distribution",
+          "quote": "no longer available for new apps",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        },
+        {
+          "url": "https://shopify.dev/docs/apps/launch/distribution",
+          "quote": "Can't be created anymore, though existing apps keep working",
+          "fetchedAt": "2026-10-30T21:55:00.000Z"
+        }
+      ]
+    }
+  ],
+  "automation": {
+    "surface": "cli",
+    "surfaceClaim": {
+      "text": "An app can be created with the Shopify CLI or the Dev Dashboard.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://shopify.dev/docs/apps/build",
+          "quote": "Shopify CLI and the Dev Dashboard both work against the same app record, so you can create an app in either one.",
+          "fetchedAt": "2026-10-30T21:50:00.000Z"
+        }
+      ]
+    },
+    "agentCan": [
+      {
+        "text": "Create the app with the Shopify CLI.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://shopify.dev/docs/apps/build",
+            "quote": "Shopify CLI and the Dev Dashboard both work against the same app record, so you can create an app in either one.",
+            "fetchedAt": "2026-10-30T21:50:00.000Z"
+          }
+        ]
+      }
+    ],
+    "youMust": [
+      {
+        "text": "For a public app, submit to Shopify's App Approval team and pass review.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://shopify.dev/docs/apps/launch/app-store-review",
+            "quote": "When you're ready to distribute your app on the Shopify App Store, you need to submit it to Shopify's App Approval team and make sure it meets all requirements.",
+            "fetchedAt": "2026-10-30T21:50:00.000Z"
+          }
+        ]
+      },
+      {
+        "text": "For a public app, register for the App Store and pay the one-time fee.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://shopify.dev/docs/apps/launch/distribution",
+            "quote": "Public distribution also requires registering for the Shopify App Store, which has a one-time fee.",
+            "fetchedAt": "2026-10-30T21:50:00.000Z"
+          }
+        ]
+      }
+    ]
+  },
+  "blocked": {
+    "contacts": [],
+    "usualRejections": [
+      {
+        "text": "Apps that miss core requirements are paused before review starts.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://shopify.dev/docs/apps/launch/app-store-review/review-process",
+            "quote": "If your app doesn't meet core requirements that prevent a reviewer from reviewing your app, then your app moves to the Paused status",
+            "fetchedAt": "2026-10-30T21:50:00.000Z"
+          }
+        ]
+      }
+    ]
+  },
+  "probes": [
+    {
+      "name": "OAuth server metadata (RFC 8414)",
+      "url": "https://shopify.dev/.well-known/oauth-authorization-server",
+      "ok": false,
+      "status": 404,
+      "finding": "not published (HTTP 404)",
+      "probedAt": "2026-10-30T21:27:47.982Z"
+    },
+    {
+      "name": "OpenID Connect discovery",
+      "url": "https://shopify.dev/.well-known/openid-configuration",
+      "ok": false,
+      "status": 404,
+      "finding": "not published (HTTP 404)",
+      "probedAt": "2026-10-30T21:27:47.990Z"
+    },
+    {
+      "name": "OAuth server metadata (RFC 8414)",
+      "url": "https://shopify.com/.well-known/oauth-authorization-server",
+      "ok": false,
+      "status": 404,
+      "finding": "not published (HTTP 404)",
+      "probedAt": "2026-10-30T21:27:49.023Z"
+    },
+    {
+      "name": "OpenID Connect discovery",
+      "url": "https://shopify.com/.well-known/openid-configuration",
+      "ok": false,
+      "status": 404,
+      "finding": "not published (HTTP 404)",
+      "probedAt": "2026-10-30T21:27:49.024Z"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://shopify.dev/docs/apps/build",
+      "title": "Build apps for Shopify - Shopify.dev",
+      "fetchedAt": "2026-10-30T21:50:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://shopify.dev/docs/apps/launch/distribution",
+      "title": "Choose a distribution method - Shopify.dev",
+      "fetchedAt": "2026-10-30T21:50:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://shopify.dev/docs/apps/launch/app-store-review",
+      "title": "App Store review - Shopify.dev",
+      "fetchedAt": "2026-10-30T21:50:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://shopify.dev/docs/apps/launch/app-store-review/review-process",
+      "title": "About the app review process - Shopify.dev",
+      "fetchedAt": "2026-10-30T21:50:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://docs.composio.dev/toolkits/managed-auth",
+      "title": "Managed OAuth apps - Composio",
+      "fetchedAt": "2026-10-30T18:20:00.000Z",
+      "status": "ok",
+      "note": "official"
+    }
+  ],
+  "gaps": [
+    "No review timeline is published on the pages read.",
+    "The amount of the one-time App Store fee is not stated on the pages read.",
+    "The authentication details (token exchange versus authorization code grant) and redirect URL rules were not read in full.",
+    "The full App Store requirements list was not read. We did not set up a Shopify app ourselves."
+  ]
+}

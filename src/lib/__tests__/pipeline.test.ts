@@ -380,6 +380,15 @@ describe("verdict from absence", () => {
   });
 });
 
+describe("depends verdict", () => {
+  it("is kept when its quote supports it (it is a quote claim, unlike no-approval-needed)", async () => {
+    const r = resultOf(await run("Example", mkDeps({}, extraction({ verdict: "depends", verdictItem: item("Open and gated paths", "Apps listed in the marketplace go through review.") }))));
+    if (r?.type !== "result") throw new Error("no result");
+    expect(r.guide.verdict.value).toBe("depends");
+    expect(r.guide.verdict.claim.confidence).toBe("docs");
+  });
+});
+
 describe("url matching", () => {
   it("maps the model's slightly different URLs back to the ones we offered", async () => {
     const { matchOffered, urlKey } = await import("../discovery");

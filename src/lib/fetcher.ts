@@ -135,6 +135,7 @@ export async function fetchPage(rawUrl: string): Promise<FetchResult> {
           headers: {
             "user-agent": "oauth-guide-bot/0.1 (documentation research tool)",
             accept: "text/markdown,text/html;q=0.9,text/plain;q=0.8,*/*;q=0.1", // many docs sites serve clean markdown when asked
+            "accept-language": "en-US,en;q=0.9", // otherwise some sites localize by IP, and English quotes then cannot be verified
           },
         });
       } finally {
@@ -156,7 +157,8 @@ export async function fetchPage(rawUrl: string): Promise<FetchResult> {
 
       const body = await readCapped(res);
       const isHtml = type === "text/html" || /^\s*<(!doctype|html)/i.test(body);
-      const { title, text } = isHtml ? htmlToText(body) : { title: undefined, text: body };
+      // Markdown from docs sites can embed raw <svg> icons and similar markup mid-sentence; drop it so the text reads cleanly.
+      const { title, text } = isHtml ? htmlToText(body) : { title: undefined, text: body.replace(/<svg[\s\S]*?<\/svg>/gi, " ").replace(/<img\b[^>]*>/gi, " ") };
       if (text.trim().length < 200) {
         return { ok: false, url: current, error: "page has too little readable text (likely JS-rendered)", status: res.status };
       }

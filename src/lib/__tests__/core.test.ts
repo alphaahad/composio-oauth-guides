@@ -146,3 +146,20 @@ describe("htmlToText", () => {
     expect(text).toContain("&bogus;");
   });
 });
+
+describe("quotes survive markdown links and inline html", () => {
+  const md = 'In the left sidebar, click <svg viewBox="0 0 16 16"><path d="M1 2z"></path></svg> **Developer settings**. Note that [OAuth RFC](https://www.rfc-editor.org/rfc/rfc8252) recommends not to use `localhost`, but instead to use 127.0.0.1.';
+  it("matches a plain quote against text containing svg icons and link syntax", () => {
+    expect(quoteInText("In the left sidebar, click Developer settings", md)).toBe(true);
+    expect(quoteInText("OAuth RFC recommends not to use localhost, but instead to use 127.0.0.1", md)).toBe(true);
+  });
+  it("also matches a quote that includes the link syntax itself", () => {
+    expect(quoteInText("Note that [OAuth RFC](https://www.rfc-editor.org/rfc/rfc8252) recommends not to use localhost", md)).toBe(true);
+  });
+  it("still rejects a quote that is not there", () => {
+    expect(quoteInText("OAuth RFC recommends always using localhost for desktop apps", md)).toBe(false);
+  });
+  it("keeps angle-bracket placeholders matchable", () => {
+    expect(quoteInText("Bot scopes should be added as scope=<bot_scope>, and user scopes", "Bot scopes should be added as `scope=<bot_scope>`, and user scopes should be added as `user_scope=<user_scope>`.")).toBe(true);
+  });
+});

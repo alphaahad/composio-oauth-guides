@@ -1,0 +1,442 @@
+{
+  "slug": "google",
+  "appName": "Google",
+  "website": "https://developers.google.com",
+  "origin": "seed",
+  "humanReviewed": false,
+  "generatedAt": "2026-10-30T21:45:00.000Z",
+  "usesOAuth": "yes",
+  "verdict": {
+    "value": "depends",
+    "claim": {
+      "text": "Apps that request sensitive or restricted scopes must pass Google's OAuth verification.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://support.google.com/cloud/answer/13463073",
+          "quote": "Apps that request access to scopes categorized as sensitive or restricted must complete Google's OAuth app verification before being granted access.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    }
+  },
+  "summary": "It depends on the scopes you request. Sign-in and other non-sensitive scopes need no verification. Sensitive scopes need Google's OAuth verification, and restricted scopes (such as broad Gmail or Drive access) add an annual third-party security assessment. Until you are verified, the app is capped at 100 new users.",
+  "composio": {
+    "managed": "yes",
+    "note": "Composio lists managed OAuth apps for Gmail, Google Drive and other Google services. For these you can skip Google's verification yourself, because the app that users authorize is Composio's. You need your own only for your own branding, extra scopes, or dedicated quota, and then verification applies to you.",
+    "evidence": [
+      {
+        "url": "https://docs.composio.dev/toolkits/managed-auth",
+        "quote": "Composio-managed OAuth available",
+        "fetchedAt": "2026-10-30T18:20:00.000Z"
+      },
+      {
+        "url": "https://docs.composio.dev/toolkits/managed-auth",
+        "quote": "| [Gmail](/toolkits/gmail.md) | `GMAIL` |",
+        "fetchedAt": "2026-10-30T18:20:00.000Z"
+      },
+      {
+        "url": "https://docs.composio.dev/toolkits/managed-auth",
+        "quote": "| [Google Drive](/toolkits/googledrive.md) | `GOOGLEDRIVE` |",
+        "fetchedAt": "2026-10-30T18:20:00.000Z"
+      }
+    ]
+  },
+  "effort": {
+    "text": "4-10 hours to set up the app (our estimate: configure the consent screen, verify a domain, publish a privacy policy, write scope justifications, record a demo video)",
+    "confidence": "inferred",
+    "evidence": []
+  },
+  "wait": {
+    "text": "Sensitive scopes: one official page says up to 10 days, another says verification might take several months. Restricted scopes: no timeline is stated.",
+    "confidence": "conflicting",
+    "evidence": [
+      {
+        "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification",
+        "quote": "The sensitive scope verification process can take up to 10 days to complete.",
+        "fetchedAt": "2026-10-30T21:40:00.000Z"
+      },
+      {
+        "url": "https://support.google.com/cloud/answer/7454865",
+        "quote": "Depending on the sensitivity of the data being requested, verification might require several months for the app to complete.",
+        "fetchedAt": "2026-10-30T21:40:00.000Z"
+      }
+    ]
+  },
+  "blockerRisk": {
+    "value": "high",
+    "claim": {
+      "text": "high for sensitive or restricted scopes (our judgment: domain, policy, video and justification requirements, plus a third-party assessment for restricted scopes)",
+      "confidence": "inferred",
+      "evidence": []
+    }
+  },
+  "scopeTiers": [
+    {
+      "text": "Non-sensitive scopes only: verification is not mandatory.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://support.google.com/cloud/answer/13463073",
+          "quote": "If your app utilizes only non-sensitive scopes, it is not mandatory for your app to complete the app verification process.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Sensitive scopes: you must complete OAuth app verification.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://support.google.com/cloud/answer/13463073",
+          "quote": "Apps that request access to scopes categorized as sensitive or restricted must complete Google's OAuth app verification before being granted access.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Restricted scopes: verification plus an annual security assessment by a Google-approved assessor.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://support.google.com/cloud/answer/13464321",
+          "quote": "Apps requesting access to restricted scopes must meet the additional requirement of secure data handling by submitting to an annual security assessment from a Google empanelled group of security assessors.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "text": "Choose the audience: External is open to any Google account. Internal limits the app to your organization.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://support.google.com/cloud/answer/15549945",
+          "quote": "Projects configured with a user type of External are available to any user with a Google Account.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Verify ownership of your authorized domains in Google Search Console.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification",
+          "quote": "Verify ownership of your project's authorized domains within the Google Search Console.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Host a homepage on that verified domain and link your privacy policy from it.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://support.google.com/cloud/answer/13464321",
+          "quote": "The homepage must be hosted on a verified domain you own",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        },
+        {
+          "url": "https://support.google.com/cloud/answer/13464321",
+          "quote": "You must add the link of your privacy policy to your homepage",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Write a justification for each sensitive scope, including why a narrower scope is not enough.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification",
+          "quote": "Prepare a detailed justification for each requested sensitive scope, as well as an explanation for why a narrower scope isn't sufficient.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Record a demo video and upload it to YouTube as Unlisted.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification",
+          "quote": "Upload the video to YouTube Studio and set its Visibility as Unlisted.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Submit through the Cloud Console Verification Center, declaring all scopes.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification",
+          "quote": "using the Cloud Console Verification Center, declaring all scopes",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "For restricted scopes, complete the CASA security assessment.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://support.google.com/cloud/answer/13465431",
+          "quote": "we are leveraging the industry standard App Defense Alliance and its Cloud App Security Assessment framework (CASA).",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    }
+  ],
+  "redirectRules": [],
+  "requirements": [
+    {
+      "text": "Your homepage cannot be only a login page.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://support.google.com/cloud/answer/13464321",
+          "quote": "Your homepage can not be only a login page",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "The scopes on your consent screen must match the ones you submit for verification.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://support.google.com/cloud/answer/13464321",
+          "quote": "The consent screen must also show the same exact scopes you are requesting",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Apps with restricted scopes must re-verify every year.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://support.google.com/cloud/answer/13463073",
+          "quote": "Apps requesting restricted scopes data need to complete \"re-verification\" annually.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    }
+  ],
+  "gotchas": [
+    {
+      "text": "In Testing mode you are limited to 100 test users.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://support.google.com/cloud/answer/15549945",
+          "quote": "Projects configured with a publishing status of Testing are limited to up to 100 test users listed in the OAuth consent screen.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "In Testing mode, authorizations expire after seven days, and so do refresh tokens.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://support.google.com/cloud/answer/15549945",
+          "quote": "Authorizations by a test user will expire seven days from the time of consent.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        },
+        {
+          "url": "https://support.google.com/cloud/answer/15549945",
+          "quote": "If your OAuth client requests an offline access type and receives a refresh token, that token will also expire.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Until verified, the app is limited to 100 new users, and this cap lasts for the project's lifetime.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://support.google.com/cloud/answer/7454865",
+          "quote": "your app will be limited to 100 new users until it is verified.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        },
+        {
+          "url": "https://support.google.com/cloud/answer/15549945",
+          "quote": "The user cap applies over the entire lifetime of the project, and it cannot be reset or changed.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Sign-in-only apps (name, email, profile) skip the test-user list, the warning and the 7-day expiry.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://support.google.com/cloud/answer/15549945",
+          "quote": "For such requests, your users do not need to be in the trusted user list, they will not see a warning message, and their authorizations will not expire after 7 days.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Brand verification is automatic and fast, but you must publish within 7 days or run it again.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification",
+          "quote": "The automated review usually completes in a few minutes.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        },
+        {
+          "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification",
+          "quote": "If you don't publish within that timeframe, the status will change to Need to re-verify and you will have to run the brand verification again.",
+          "fetchedAt": "2026-10-30T21:40:00.000Z"
+        }
+      ]
+    }
+  ],
+  "automation": {
+    "surface": "unknown",
+    "agentCan": [],
+    "youMust": [
+      {
+        "text": "Verify the domain in Search Console with a project Owner or Editor account.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://support.google.com/cloud/answer/13464321",
+            "quote": "An account listed as a project owner or editor on your GCP account must verify ownership of the authorized domain using Google Search Console.",
+            "fetchedAt": "2026-10-30T21:40:00.000Z"
+          }
+        ]
+      },
+      {
+        "text": "Record and upload the demo video.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification",
+            "quote": "Upload the video to YouTube Studio and set its Visibility as Unlisted.",
+            "fetchedAt": "2026-10-30T21:40:00.000Z"
+          }
+        ]
+      },
+      {
+        "text": "For restricted scopes, pass a security assessment from a Google-approved assessor.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://support.google.com/cloud/answer/13464321",
+            "quote": "Apps requesting access to restricted scopes must meet the additional requirement of secure data handling by submitting to an annual security assessment from a Google empanelled group of security assessors.",
+            "fetchedAt": "2026-10-30T21:40:00.000Z"
+          }
+        ]
+      }
+    ]
+  },
+  "blocked": {
+    "contacts": [],
+    "usualRejections": [
+      {
+        "text": "A justification Google finds insufficient can get the request rejected.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://support.google.com/cloud/answer/13464321",
+            "quote": "If your justification is deemed insufficient, your app verification request may be rejected.",
+            "fetchedAt": "2026-10-30T21:40:00.000Z"
+          }
+        ]
+      },
+      {
+        "text": "If a scope goes beyond what the app needs, Google sends you back to request a narrower one.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://support.google.com/cloud/answer/13464321",
+            "quote": "If the requested scope(s) goes beyond the usage needed, you will be directed to request a narrower scope to proceed with verification.",
+            "fetchedAt": "2026-10-30T21:40:00.000Z"
+          }
+        ]
+      }
+    ]
+  },
+  "probes": [
+    {
+      "name": "OAuth server metadata (RFC 8414)",
+      "url": "https://accounts.google.com/.well-known/oauth-authorization-server",
+      "ok": true,
+      "status": 200,
+      "finding": "authorize: https://accounts.google.com/o/oauth2/v2/auth; token: https://oauth2.googleapis.com/token; no dynamic client registration advertised; PKCE: plain, S256",
+      "probedAt": "2026-10-30T21:27:45.953Z"
+    },
+    {
+      "name": "OpenID Connect discovery",
+      "url": "https://accounts.google.com/.well-known/openid-configuration",
+      "ok": true,
+      "status": 200,
+      "finding": "authorize: https://accounts.google.com/o/oauth2/v2/auth; token: https://oauth2.googleapis.com/token; no dynamic client registration advertised; PKCE: plain, S256; 3 scopes advertised",
+      "probedAt": "2026-10-30T21:27:45.961Z"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://support.google.com/cloud/answer/13463073",
+      "title": "OAuth app verification - Google Cloud Help",
+      "fetchedAt": "2026-10-30T21:40:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification",
+      "title": "Sensitive scope verification - Google for Developers",
+      "fetchedAt": "2026-10-30T21:40:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://support.google.com/cloud/answer/13464321",
+      "title": "OAuth app verification requirements - Google Cloud Help",
+      "fetchedAt": "2026-10-30T21:40:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://support.google.com/cloud/answer/13465431",
+      "title": "Security assessment - Google Cloud Help",
+      "fetchedAt": "2026-10-30T21:40:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://support.google.com/cloud/answer/7454865",
+      "title": "Unverified apps - Google Cloud Help",
+      "fetchedAt": "2026-10-30T21:40:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://support.google.com/cloud/answer/15549945",
+      "title": "Manage app audience - Google Cloud Help",
+      "fetchedAt": "2026-10-30T21:40:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://docs.composio.dev/toolkits/managed-auth",
+      "title": "Managed OAuth apps - Composio",
+      "fetchedAt": "2026-10-30T18:20:00.000Z",
+      "status": "ok",
+      "note": "official"
+    }
+  ],
+  "gaps": [
+    "Two official pages disagree on how long sensitive-scope verification takes (up to 10 days versus several months). We show both.",
+    "No timeline or cost is stated for the restricted-scope security assessment.",
+    "Redirect URI rules were not covered by the pages read.",
+    "How much of the console setup an agent can do is not documented. A real setup attempt will test it."
+  ]
+}
