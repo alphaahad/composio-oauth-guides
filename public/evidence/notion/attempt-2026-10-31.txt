@@ -1,0 +1,66 @@
+Notion: real OAuth connection setup attempt
+
+Date: 2026-10-31. The account owner signed in to Notion first, typing their own credentials. The agent then drove the
+Notion developer pages in the browser pane.
+
+Redactions: the client ID is shortened. The client secret stays masked on the page and was never revealed, copied or stored.
+The connection is a throwaway test connection. Nothing was published or submitted to the Marketplace.
+
+What the agent did
+
+1. Opened the developer tools page. Notion calls these Connections, under "Developer tools", next to Workers, Personal access tokens and MCP tokens.
+2. Opened New connection and chose OAuth.
+3. Filled the connection name and one redirect URI, then created the connection.
+4. Read the connection's settings page.
+5. Requested Notion's authorization URL three times with different redirect_uri values. It stopped at the consent screen each time and did not click Select pages.
+
+Observations
+
+The New connection dialog offered two authentication methods.
+API token: "Workspace-scoped static API token, shared across collaborators, with its own access settings. Limited to 1 workspace and not Marketplace-eligible."
+OAuth: "User-scoped OAuth 2.0, with access limited to the signed-in user. Supports multiple workspaces and is Marketplace-eligible."
+
+Human gate: the dialog says "By creating a connection, you agree to Notion's Developer Terms." The agent stopped and asked the account owner, who gave a clear yes, and the agent then clicked Create connection. An agent should not accept this on its own.
+
+The OAuth fields were: Connection name, Installable in (default "Any workspace"), and Redirect URIs ("A redirect URI is where the user gets directed after sign in.").
+
+The first click on Create connection did nothing, because the redirect URI had not yet become a chip. After the chip appeared, the second click created the connection.
+
+Creating the connection took one submission. Notion showed no review step, no CAPTCHA and no email confirmation. The connection's settings page loaded straight away.
+
+The settings page said: "Marketplace listing Unpublished Publish to Marketplace".
+It said: "this connection can be installed in any workspace, so it's eligible for Marketplace submission."
+It showed Installable in: Public.
+
+Redirect URI rules
+
+The page said: "Redirect URLs can't include URL fragments, relative paths, wildcards, or public IP addresses."
+It also said users "will be redirected to one of these HTTPS URLs." We registered http://localhost:3000/api/auth/callback and Notion accepted it.
+
+The settings page also showed a ready-made authorization URL with the client ID, response_type=code, owner=user and the redirect URI filled in.
+Capabilities available: Read content, Update content, Insert content, Read comments, Insert comments, and three levels of user information (none, without email addresses, including email addresses).
+The danger zone said: "Deleting this connection permanently revokes its access for everyone who has installed it".
+
+Authorization URL tests
+
+| redirect_uri requested | Result |
+| --- | --- |
+| http://localhost:3000/api/auth/callback (registered) | Consent screen: "Connect with Composio OAuth Guides (test, safe to delete)" |
+| http://localhost:5555/api/auth/callback (different port) | "Missing or invalid redirect_uri." |
+| https://example.org/cb (unrelated host) | "Missing or invalid redirect_uri." |
+
+The consent screen listed what the connection can do: "View pages you select", "Edit pages you select", "Create new content within pages you select" and "View workspace users and their emails".
+It also said: "Notion does not review third party connections".
+
+Human gates met
+
+- Signing in to Notion is the account owner's job. The agent cannot enter credentials.
+- Creating a connection means agreeing to Notion's Developer Terms, which needs the account owner's explicit yes.
+- Each end user must pick pages and approve on the consent screen. This was not exercised.
+
+Not done
+
+- We did not click Select pages, authorize, or run a token exchange.
+- We did not open the Marketplace submission flow, which opens in a separate tab, so its requirements are not recorded here.
+- We did not reveal or copy the client secret.
+- Only an OAuth connection in a personal workspace was tested, not an organization workspace.

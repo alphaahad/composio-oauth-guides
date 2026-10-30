@@ -2,7 +2,7 @@
 // Snapshot of how every curated claim holds up: (1) quote found on the live page, (2) the support judge's ruling.
 // Writes research/audit.json, rendered on /verification. The judge is a model and varies between runs; the snapshot
 // records one run with its date. Read-only with respect to guides/.
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fetchPage } from "../src/lib/fetcher";
 import { geminiLlm } from "../src/lib/llm";
@@ -29,8 +29,14 @@ async function main() {
       for (const e of c.evidence) {
         evidence++;
         if (!pageText.has(e.url)) {
-          const r = await fetchPage(e.url);
-          pageText.set(e.url, r.ok ? r.page.text : null);
+          if (e.url.startsWith("/")) {
+            // our own tested evidence, served from public/
+            const file = join("public", e.url);
+            pageText.set(e.url, existsSync(file) ? readFileSync(file, "utf8") : null);
+          } else {
+            const r = await fetchPage(e.url);
+            pageText.set(e.url, r.ok ? r.page.text : null);
+          }
         }
         const t = pageText.get(e.url);
         if (t && quoteInText(e.quote, t)) matched++;

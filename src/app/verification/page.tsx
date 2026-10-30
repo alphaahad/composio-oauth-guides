@@ -9,6 +9,14 @@ export const metadata: Metadata = {
   description: "What we checked, what a plain AI answer gets wrong, and what we got wrong ourselves.",
 };
 
+const hostOf = (u: string) => {
+  if (u.startsWith("/")) return "our test log";
+  try {
+    return new URL(u).hostname;
+  } catch {
+    return u;
+  }
+};
 const pct = (n: number, d: number) => (d === 0 ? "0%" : `${Math.round((n / d) * 100)}%`);
 
 function Bar({ b }: { b: Baseline[number]["baseline"] }) {
@@ -144,7 +152,7 @@ export default async function VerificationPage() {
 
         <div className="cmp">
           {baseline.map((a) => {
-            const wrong = a.baseline.claims.filter((c) => c.verdict === "contradicted");
+            const wrong = a.baseline.claims.filter((c) => c.verdict === "contradicted" || (c.verdict === "partial" && c.handReviewed));
             return (
               <div key={a.slug} className="cmp-card">
                 <div className="cmp-head">
@@ -158,7 +166,7 @@ export default async function VerificationPage() {
                   <div key={i} className="finding">
                     <p className="pair">The plain answer said</p>
                     <p>
-                      <span className="tag tag-corrected">Contradicted</span>
+                      <span className={`tag ${c.verdict === "contradicted" ? "tag-corrected" : "tag-partial"}`}>{c.verdict === "contradicted" ? "Contradicted" : "Partly right"}</span>
                       {c.claim}
                     </p>
                     <p className="pair" style={{ marginTop: 10 }}>
@@ -167,9 +175,10 @@ export default async function VerificationPage() {
                     <p className="muted">“{c.quote}”</p>
                     <p className="fineprint">
                       <a href={c.url} target="_blank" rel="noopener noreferrer">
-                        {new URL(c.url).hostname}
+                        {hostOf(c.url)}
                       </a>
-                      {" · hand-reviewed"}
+                      {c.handReviewed ? " · hand-reviewed" : " · hand-reviewed contradiction"}
+                      {c.note ? `. ${c.note}` : ""}
                     </p>
                   </div>
                 ))}
@@ -179,8 +188,8 @@ export default async function VerificationPage() {
         </div>
         <p className="fineprint" style={{ marginTop: 16 }}>
           &ldquo;Can&apos;t confirm&rdquo; means the pages we read don&apos;t say, not that the claim is false. Some may be true and documented elsewhere. The point
-          is that you can&apos;t tell from an unsourced answer. This is one run of one model, and the checker is itself a model; we hand-reviewed every
-          contradiction.
+          is that you can&apos;t tell from an unsourced answer. This is one run of one model, and the checker is itself a model. We hand-reviewed every
+          contradiction, and a person also read the unconfirmed claims and added the ones the checker missed (marked as hand-reviewed).
         </p>
 
         <h2 className="block-title">What we got wrong</h2>

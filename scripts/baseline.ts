@@ -5,7 +5,7 @@
 //   3. check each claim against the official pages we fetched, requiring a verbatim quote for any verdict
 // Output: research/baseline.json (rendered on /verification). Quotes are verified by the same code as the product.
 import { GoogleGenAI } from "@google/genai";
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
 import { fetchPage } from "../src/lib/fetcher";
@@ -31,7 +31,7 @@ async function main() {
 
   const only = process.argv.slice(2);
   const files = readdirSync("guides").filter((f) => f.endsWith(".json") && (only.length === 0 || only.includes(f.replace(/\.json$/, ""))));
-  const out = [];
+  const out: Array<{ slug: string } & Record<string, unknown>> = [];
 
   for (const f of files) {
     const guide = Guide.parse(JSON.parse(readFileSync(join("guides", f), "utf8")));
@@ -96,8 +96,12 @@ async function main() {
     });
     console.log(`${guide.slug.padEnd(9)} baseline: ${count("supported")} supported, ${count("partial")} partial, ${count("contradicted")} contradicted, ${count("not_addressed")} not addressed (of ${checked.length})`);
   }
-  writeFileSync(join("research", "baseline.json"), JSON.stringify(out, null, 2) + "\n");
-  console.log("wrote research/baseline.json");
+  // Merge by slug so re-running for one app does not discard the others.
+  const file = join("research", "baseline.json");
+  const previous: { slug: string }[] = existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : [];
+  const merged = [...previous.filter((p) => !out.some((o) => o.slug === p.slug)), ...out].sort((a, b) => a.slug.localeCompare(b.slug));
+  writeFileSync(file, JSON.stringify(merged, null, 2) + "\n");
+  console.log(`wrote research/baseline.json (${merged.length} apps)`);
 }
 main().catch((e) => {
   console.error("FAILED:", e instanceof Error ? e.message : e);

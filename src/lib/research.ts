@@ -21,7 +21,8 @@ const Audit = z.object({
   ),
 });
 
-const BaselineClaim = z.object({ claim: z.string(), verdict: z.enum(["supported", "partial", "contradicted", "not_addressed"]), quote: z.string(), url: z.string() });
+const BaselineClaim = z.object({ claim: z.string(), verdict: z.enum(["supported", "partial", "contradicted", "not_addressed"]), quote: z.string(), url: z.string(), handReviewed: z.boolean().optional(), note: z.string().optional() });
+const Overrides = z.array(z.object({ slug: z.string(), claimStartsWith: z.string(), verdict: z.enum(["supported", "partial", "contradicted"]), quote: z.string(), url: z.string(), note: z.string() }));
 const Baseline = z.array(
   z.object({
     slug: z.string(),
@@ -64,10 +65,28 @@ async function read<T>(file: string, schema: z.ZodType<T>, fallback: T): Promise
 export async function loadResearch() {
   "use cache";
   cacheLife("max");
-  const [audit, baseline, corrections] = await Promise.all([
+  const [audit, rawBaseline, corrections, overrides] = await Promise.all([
     read("audit.json", Audit, { generatedAt: "", guides: [] } as Audit),
     read("baseline.json", Baseline, [] as Baseline),
     read("corrections.json", Corrections, [] as Corrections),
+    read("baseline-overrides.json", Overrides, [] as z.infer<typeof Overrides>),
   ]);
-  return { audit, baseline, corrections };
+  return { audit, baseline: applyOverrides(rawBaseline, overrides), corrections };
+}
+
+/**
+ * The automated checker misses some claims that our verified sources clearly address. A person read the unconfirmed
+ * claims and recorded those as overrides, each with a quote that scripts/verify-research.ts re-checks. They are
+ * applied on top of the machine output and marked, never edited into it.
+ */
+export function applyOverrides(baseline: Baseline, overrides: z.infer<typeof Overrides>): Baseline {
+  return baseline.map((app) => {
+    const mine = overrides.filter((o) => o.slug === app.slug);
+    const claims = app.baseline.claims.map((c) => {
+      const o = mine.find((x) => c.claim.startsWith(x.claimStartsWith));
+      return o ? { ...c, verdict: o.verdict, quote: o.quote, url: o.url, handReviewed: true, note: o.note } : c;
+    });
+    const n = (v: string) => claims.filter((c) => c.verdict === v).length;
+    return { ...app, baseline: { claims, supported: n("supported"), partial: n("partial"), contradicted: n("contradicted"), notAddressed: n("not_addressed") } };
+  });
 }

@@ -9,7 +9,7 @@
   "verdict": {
     "value": "depends",
     "claim": {
-      "text": "Only the open permissions are available without approval. Most permissions and partner programs need LinkedIn's explicit approval.",
+      "text": "Most permissions and partner programs require explicit approval from LinkedIn.",
       "confidence": "docs",
       "evidence": [
         {

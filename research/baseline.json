@@ -282,6 +282,107 @@
     }
   },
   {
+    "slug": "notion",
+    "appName": "Notion",
+    "generatedAt": "2026-10-30T22:08:03.396Z",
+    "models": [
+      "gemini-3.5-flash-lite",
+      "gemini-3.1-flash-lite",
+      "gemini-3.8-flash"
+    ],
+    "pagesChecked": [
+      "https://developers.notion.com/guides/get-started/authorization",
+      "https://developers.notion.com/guides/get-started/overview",
+      "https://developers.notion.com/guides/get-started/marketplace-listing"
+    ],
+    "baseline": {
+      "text": "As a developer, building and publishing a Notion OAuth integration is **moderately difficult**. \n\nThe technical setup is straightforward because Notion’s API is well-designed and REST-based. However, the **approval and public distribution process** can be frustratingly opaque, and Notion's permission model has some strict quirks that catch many developers off guard.\n\nHere is a realistic breakdown of what to expect, covering timelines, requirements, and gotchas.\n\n---\n\n### 1. How Long Setup Takes\n* **Technical Integration (MVP):** **1 to 3 days.** \n  If you already have a backend (Node.js, Python, Ruby, etc.), setting up the OAuth redirect flow, storing tokens securely, and making your first API call to Notion takes very little time. \n* **UI/UX & Error Handling:** **1 to 2 days.** \n  Handling token refreshes, disconnections, and partial access states takes a bit more polish.\n\n### 2. How Long Approval Takes\n* **Public Distribution Review:** **1 to 3 weeks (sometimes longer).**\n  Unlike Google or Microsoft, which have automated verification processes, Notion’s review process for public integrations is managed by their partnerships/developer relations team. \n* **The Reality:** If your app is just for personal use or a small team, you **do not** need approval—you can create an \"Internal Integration\" and share specific pages with it instantly. You only need Notion's review if you want a **Public Integration** where any Notion user can click \"Add to Notion\" and log in via OAuth.\n\n---\n\n### 3. Key Requirements for Public Approval\nTo get your public integration approved by Notion, you must meet several criteria:\n\n1. **Branding & Assets:** You need a clear logo, privacy policy URL, terms of service URL, and a landing page that clearly explains what your app does.\n2. **Security & Data Handling:** You must securely store OAuth tokens (access tokens and refresh tokens). Notion requires HTTPS for all redirect URIs.\n3. **The \"Add to Notion\" Flow:** You must use Notion’s official branding and button styles for the OAuth installation flow.\n4. **Clear Value Proposition:** Notion’s review team actually looks at your app. They want to ensure it provides genuine utility and isn't just spam or a duplicate of basic features.\n\n---\n\n### 4. Common Gotchas & Developer Pain Points\n\n#### Gotcha #1: The \"No Database/Page Selected\" Trap\nWhen a user installs your app via OAuth, Notion prompts them to select *which* pages or databases to grant access to. \n* **The Pain:** If a user selects only *Page A*, your app **cannot see** *Page B*, even if it's a sub-page of Page A, unless explicitly shared later. \n* **The Dev Impact:** Your app must gracefully handle `404 Not Found` or `403 Forbidden` errors when trying to access resources the user forgot to give your app permission to see.\n\n#### Gotcha #2: No Granular Scope Control at OAuth Time\nUnlike GitHub or Google, where you can request specific scopes (e.g., `repo:read` or `calendar.readonly`), Notion's OAuth is mostly all-or-nothing based on the capabilities you check in your app settings (Read content, Update content, Insert content). You cannot dynamically ask for different scopes per user request.\n\n#### Gotcha #3: Block-Based Architecture\nNotion doesn't store documents as HTML or Markdown; it stores them as a tree of **Blocks** (paragraphs, toggle lists, child databases, etc.). \n* **The Pain:** Reading and writing content requires parsing JSON block objects. Writing a simple \"export to markdown\" or \"import rich text\" feature requires writing custom recursive parsers.\n\n#### Gotcha #4: Rate Limiting\nNotion enforces strict rate limits (currently an average of 3 requests per second). If your app syncs large workspaces, you will hit `429 Too Many Requests` errors immediately unless you implement robust queuing, exponential backoff, and retry logic.\n\n#### Gotcha #5: Workspace vs. User Tokens\nNotion has two types of integrations:\n* **Internal integrations:** Tied to a workspace, uses a single secret token.\n* **Public integrations:** Uses OAuth, tied to individual users who authorize the app. \nMake sure you build for **User Tokens (OAuth)** from day one if you plan to go public, as retrofitting an internal integration into a multi-tenant OAuth app requires rewriting your database schemas and auth logic.\n\n---\n\n### Summary Checklist for Success\n1. Build and test using an **Internal Integration** first.\n2. Once working, switch your app configuration to a **Public Integration** and add your redirect URIs.\n3. Prepare your Privacy Policy and Terms of Service URLs (mandatory for submission).\n4. Submit for review, and be prepared to answer questions from the Notion team about how your app uses their data.",
+      "claims": [
+        {
+          "claim": "Building a technical MVP for a Notion OAuth integration takes 1 to 3 days.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Implementing UI/UX and error handling for Notion OAuth takes 1 to 2 days.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Public distribution review by Notion takes 1 to 3 weeks.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Internal integrations do not require approval and can be used for personal use or small teams instantly.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Public integrations require Notion review for users to add the app via OAuth.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Notion requires HTTPS for all redirect URIs.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Notion apps must handle 404 or 403 errors when users do not grant access to specific sub-pages.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Notion OAuth capabilities are configured as all-or-nothing in app settings rather than dynamically requested per user.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Notion content is stored as a tree of JSON blocks requiring custom recursive parsers.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Notion enforces an average rate limit of 3 requests per second.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Public integrations must use OAuth tied to individual users rather than a single workspace secret token.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        },
+        {
+          "claim": "Privacy Policy and Terms of Service URLs are mandatory for public integration submission.",
+          "verdict": "not_addressed",
+          "quote": "",
+          "url": ""
+        }
+      ],
+      "supported": 0,
+      "partial": 0,
+      "contradicted": 0,
+      "notAddressed": 12
+    },
+    "pipeline": {
+      "claims": 20,
+      "withQuote": 20,
+      "gapsListed": 4
+    }
+  },
+  {
     "slug": "shopify",
     "appName": "Shopify",
     "generatedAt": "2026-10-30T21:36:17.106Z",

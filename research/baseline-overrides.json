@@ -1,0 +1,66 @@
+[
+  {
+    "slug": "notion",
+    "claimStartsWith": "Public integrations require Notion review for users to add the app",
+    "verdict": "contradicted",
+    "quote": "You can create and use a public connection without listing it.",
+    "url": "https://developers.notion.com/guides/get-started/overview",
+    "note": "Also tested: our OAuth connection's authorization URL worked immediately, with no review."
+  },
+  {
+    "slug": "notion",
+    "claimStartsWith": "Notion requires HTTPS for all redirect URIs.",
+    "verdict": "partial",
+    "quote": "We registered http://localhost:3000/api/auth/callback and Notion accepted it.",
+    "url": "/evidence/notion/attempt-2026-10-31.txt",
+    "note": "The page says HTTPS, but http://localhost was accepted when we registered it."
+  },
+  {
+    "slug": "notion",
+    "claimStartsWith": "Public distribution review by Notion takes 1 to 3 weeks.",
+    "verdict": "partial",
+    "quote": "After submission, expect to hear back from our team within 5-10 business days via email.",
+    "url": "https://developers.notion.com/guides/get-started/marketplace-listing",
+    "note": "Notion states 5 to 10 business days, which is shorter than the claimed range."
+  },
+  {
+    "slug": "notion",
+    "claimStartsWith": "Public integrations must use OAuth tied to individual users",
+    "verdict": "supported",
+    "quote": "OAuth: \"User-scoped OAuth 2.0, with access limited to the signed-in user. Supports multiple workspaces and is Marketplace-eligible.\"",
+    "url": "/evidence/notion/attempt-2026-10-31.txt",
+    "note": "Confirmed in the create-connection dialog."
+  },
+  {
+    "slug": "github",
+    "claimStartsWith": "GitHub does not manually review or approve public OAuth or GitHub Apps",
+    "verdict": "partial",
+    "quote": "Registering needed one form submission. GitHub showed no review step, no CAPTCHA, no password re-prompt and no email confirmation.",
+    "url": "/evidence/github/attempt-2026-10-31.txt",
+    "note": "True for registering an OAuth app. We did not test Marketplace listing or a public GitHub App."
+  },
+  {
+    "slug": "github",
+    "claimStartsWith": "Public apps require hosting a Privacy Policy URL",
+    "verdict": "partial",
+    "quote": "Filled four fields through the page's form controls: application name, homepage URL, description, one redirect URI.",
+    "url": "/evidence/github/attempt-2026-10-31.txt",
+    "note": "A homepage URL is required, but the registration form never asked for a privacy policy."
+  },
+  {
+    "slug": "google",
+    "claimStartsWith": "Apps using restricted scopes require 1 to 4 weeks for approval",
+    "verdict": "partial",
+    "quote": "Apps requesting access to restricted scopes must meet the additional requirement of secure data handling by submitting to an annual security assessment from a Google empanelled group of security assessors.",
+    "url": "https://support.google.com/cloud/answer/13464321",
+    "note": "The assessment requirement is confirmed. No timeline is stated for restricted scopes."
+  },
+  {
+    "slug": "linkedin",
+    "claimStartsWith": "Basic Sign-In OpenID Connect approval takes instant to a few hours.",
+    "verdict": "partial",
+    "quote": "Open Permissions are the only permissions that are available to all developers without special approval.",
+    "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+    "note": "These open permissions need no approval at all, so there is no approval time."
+  }
+]

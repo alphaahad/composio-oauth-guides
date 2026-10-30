@@ -1,47 +1,47 @@
 {
-  "generatedAt": "2026-10-30T21:37:37.253Z",
+  "generatedAt": "2026-10-30T22:11:04.480Z",
   "guides": [
     {
       "slug": "github",
       "appName": "GitHub",
-      "claims": 25,
+      "claims": 36,
       "byConfidence": {
         "docs": 23,
         "conflicting": 0,
-        "inferred": 2,
+        "inferred": 0,
         "unknown": 0,
-        "tested": 0,
+        "tested": 13,
         "reported": 0
       },
-      "evidenceItems": 25,
-      "quotesFoundOnPage": 25,
+      "evidenceItems": 39,
+      "quotesFoundOnPage": 39,
       "judge": {
         "checked": 23,
         "notSupported": 0,
-        "partlySupported": 4
+        "partlySupported": 5
       },
       "gaps": 4
     },
     {
       "slug": "google",
       "appName": "Google",
-      "claims": 25,
+      "claims": 46,
       "byConfidence": {
         "docs": 24,
         "conflicting": 1,
         "inferred": 0,
         "unknown": 0,
-        "tested": 0,
+        "tested": 21,
         "reported": 0
       },
-      "evidenceItems": 30,
-      "quotesFoundOnPage": 30,
+      "evidenceItems": 53,
+      "quotesFoundOnPage": 53,
       "judge": {
         "checked": 24,
-        "notSupported": 0,
+        "notSupported": 1,
         "partlySupported": 1
       },
-      "gaps": 4
+      "gaps": 6
     },
     {
       "slug": "linkedin",
@@ -60,7 +60,28 @@
       "judge": {
         "checked": 19,
         "notSupported": 1,
-        "partlySupported": 2
+        "partlySupported": 1
+      },
+      "gaps": 4
+    },
+    {
+      "slug": "notion",
+      "appName": "Notion",
+      "claims": 30,
+      "byConfidence": {
+        "docs": 11,
+        "conflicting": 0,
+        "inferred": 0,
+        "unknown": 0,
+        "tested": 19,
+        "reported": 0
+      },
+      "evidenceItems": 33,
+      "quotesFoundOnPage": 33,
+      "judge": {
+        "checked": 11,
+        "notSupported": 0,
+        "partlySupported": 3
       },
       "gaps": 4
     },
@@ -101,8 +122,8 @@
       "quotesFoundOnPage": 28,
       "judge": {
         "checked": 24,
-        "notSupported": 1,
-        "partlySupported": 3
+        "notSupported": 0,
+        "partlySupported": 0
       },
       "gaps": 3
     }

@@ -88,6 +88,39 @@
     "url": "/evidence/google/attempt-2026-10-31.txt"
   },
   {
+    "id": "notion-timeline-missed",
+    "area": "Our tooling",
+    "app": "Notion",
+    "claim": "The first live Notion guide said no review timeline is stated.",
+    "origin": "This product's own pipeline",
+    "outcome": "corrected",
+    "what": "True of the pages it read, but it never read Notion's Marketplace guide, whose FAQ gives 5 to 10 business days. The curated guide has the figure. This is the limit of a live guide: it can only report what is on the pages it found.",
+    "quote": "After submission, expect to hear back from our team within 5-10 business days via email.",
+    "url": "https://developers.notion.com/guides/get-started/marketplace-listing"
+  },
+  {
+    "id": "notion-redirect-exact",
+    "area": "Tested",
+    "app": "Notion",
+    "claim": "Loopback redirect URIs can use any port, as they can on GitHub.",
+    "origin": "Our own assumption, carried over from the GitHub test",
+    "outcome": "corrected",
+    "what": "On Notion a different localhost port failed with \"Missing or invalid redirect_uri.\" Only the exact registered URI works. Notion also accepted a plain http://localhost address even though its page says HTTPS. Providers differ on both points, so a guide has to test them per provider.",
+    "quote": "http://localhost:5555/api/auth/callback (different port) | \"Missing or invalid redirect_uri.\"",
+    "url": "/evidence/notion/attempt-2026-10-31.txt"
+  },
+  {
+    "id": "notion-terms-gate",
+    "area": "Tested",
+    "app": "Notion",
+    "claim": "Creating a Notion connection is just a form.",
+    "origin": "Our own expectation before the attempt",
+    "outcome": "corrected",
+    "what": "The form is one submission with no review, but the button carries an agreement to Notion's Developer Terms. As with Google, the agent stopped and asked the account owner before clicking.",
+    "quote": "By creating a connection, you agree to Notion's Developer Terms.",
+    "url": "/evidence/notion/attempt-2026-10-31.txt"
+  },
+  {
     "id": "slack-manifest-api",
     "area": "Our tooling",
     "app": "Slack",

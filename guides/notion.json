@@ -1,0 +1,479 @@
+{
+  "slug": "notion",
+  "appName": "Notion",
+  "website": "https://developers.notion.com",
+  "origin": "seed",
+  "humanReviewed": false,
+  "generatedAt": "2026-10-31T02:30:00.000Z",
+  "usesOAuth": "yes",
+  "verdict": {
+    "value": "self-serve-with-review-for-listing",
+    "claim": {
+      "text": "We created an OAuth connection and its authorization URL worked straight away. Only a Marketplace listing needs Notion's review.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/notion/attempt-2026-10-31.txt",
+          "quote": "Creating the connection took one submission. Notion showed no review step, no CAPTCHA and no email confirmation.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        },
+        {
+          "url": "https://developers.notion.com/guides/get-started/overview",
+          "quote": "You can create and use a public connection without listing it.",
+          "fetchedAt": "2026-10-30T22:06:00.000Z"
+        }
+      ]
+    }
+  },
+  "summary": "Self-serve, and we tested it: one form creates an OAuth connection that works right away. A Marketplace listing is optional, needs a security review, and Notion says to expect an answer in 5 to 10 business days. Two things trip people up: the installation scope cannot be changed after creation, and unlike GitHub only the exact registered redirect URI works.",
+  "composio": {
+    "managed": "yes",
+    "note": "Composio lists a managed OAuth app for Notion. You may not need your own unless you want your own branding, scopes beyond the defaults, or dedicated rate limits.",
+    "evidence": [
+      {
+        "url": "https://docs.composio.dev/toolkits/managed-auth",
+        "quote": "Composio-managed OAuth available",
+        "fetchedAt": "2026-10-30T18:20:00.000Z"
+      },
+      {
+        "url": "https://docs.composio.dev/toolkits/managed-auth",
+        "quote": "| [Notion](/toolkits/notion.md) | `NOTION` |",
+        "fetchedAt": "2026-10-30T18:20:00.000Z"
+      }
+    ]
+  },
+  "effort": {
+    "text": "0.5-1 hours to set up the app (our estimate: create the connection, pick its scope and capabilities, wire up the redirect; excludes the Marketplace listing)",
+    "confidence": "inferred",
+    "evidence": []
+  },
+  "wait": {
+    "text": "Marketplace listing only: Notion says to expect to hear back within 5-10 business days. Using the connection without listing it needs no wait.",
+    "confidence": "docs",
+    "evidence": [
+      {
+        "url": "https://developers.notion.com/guides/get-started/marketplace-listing",
+        "quote": "After submission, expect to hear back from our team within 5-10 business days via email.",
+        "fetchedAt": "2026-10-30T22:06:00.000Z"
+      }
+    ]
+  },
+  "blockerRisk": {
+    "value": "low",
+    "claim": {
+      "text": "low to use, medium for a Marketplace listing (our judgment: a short review, but rejections are possible)",
+      "confidence": "inferred",
+      "evidence": []
+    }
+  },
+  "scopeTiers": [
+    {
+      "text": "Installation scope \"Any workspace\": any Notion user can install it, and it is Marketplace-eligible.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://developers.notion.com/guides/get-started/overview",
+          "quote": "Any workspace (any Notion user can install; Marketplace-eligible)",
+          "fetchedAt": "2026-10-30T22:06:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Only public connections with an installation scope of Any workspace can be listed on the Marketplace.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://developers.notion.com/guides/get-started/marketplace-listing",
+          "quote": "Only public connections with an installation scope of Any workspace can be listed on the Marketplace.",
+          "fetchedAt": "2026-10-30T22:06:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Capabilities you can enable: read, update and insert content, read and insert comments, and three levels of user information.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/notion/attempt-2026-10-31.txt",
+          "quote": "Capabilities available: Read content, Update content, Insert content, Read comments, Insert comments, and three levels of user information (none, without email addresses, including email addresses).",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "text": "Open the Developer portal and create a new public connection.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://developers.notion.com/guides/get-started/authorization",
+          "quote": "and create a new public connection.",
+          "fetchedAt": "2026-10-30T22:06:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Choose OAuth as the authentication method. The other option is an API token, which is limited to one workspace and not Marketplace-eligible.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/notion/attempt-2026-10-31.txt",
+          "quote": "OAuth: \"User-scoped OAuth 2.0, with access limited to the signed-in user. Supports multiple workspaces and is Marketplace-eligible.\"",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        },
+        {
+          "url": "/evidence/notion/attempt-2026-10-31.txt",
+          "quote": "API token: \"Workspace-scoped static API token, shared across collaborators, with its own access settings. Limited to 1 workspace and not Marketplace-eligible.\"",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Enter your redirect URI and choose the installation scope.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://developers.notion.com/guides/get-started/authorization",
+          "quote": "Fill out the form with your connection details, including your redirect URI(s) under the OAuth configuration section and the connection's installation scope",
+          "fetchedAt": "2026-10-30T22:06:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Use the ready-made authorization URL on the connection's page to start the OAuth flow.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/notion/attempt-2026-10-31.txt",
+          "quote": "The settings page also showed a ready-made authorization URL with the client ID, response_type=code, owner=user and the redirect URI filled in.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Optional: to appear in the Marketplace, submit your listing for review from the Connections listing page.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://developers.notion.com/guides/get-started/marketplace-listing",
+          "quote": "When your listing is ready, submit it for review from the **Connections** listing page.",
+          "fetchedAt": "2026-10-30T22:06:00.000Z"
+        }
+      ]
+    }
+  ],
+  "redirectRules": [
+    {
+      "text": "Redirect URLs cannot include fragments, relative paths, wildcards or public IP addresses.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/notion/attempt-2026-10-31.txt",
+          "quote": "Redirect URLs can't include URL fragments, relative paths, wildcards, or public IP addresses.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Notion accepted an http://localhost redirect URI when we registered it.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/notion/attempt-2026-10-31.txt",
+          "quote": "We registered http://localhost:3000/api/auth/callback and Notion accepted it.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Tested: only the exact registered URI works. A different localhost port failed with \"Missing or invalid redirect_uri.\"",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/notion/attempt-2026-10-31.txt",
+          "quote": "http://localhost:5555/api/auth/callback (different port) | \"Missing or invalid redirect_uri.\"",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Tested: an unrelated host is rejected the same way.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/notion/attempt-2026-10-31.txt",
+          "quote": "https://example.org/cb (unrelated host) | \"Missing or invalid redirect_uri.\"",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Public connections must pass a Notion security review before they can be listed on the Marketplace.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://developers.notion.com/guides/get-started/overview",
+          "quote": "Public connections must undergo a Notion security review before being listed on the Marketplace.",
+          "fetchedAt": "2026-10-30T22:06:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Creating a connection means agreeing to Notion's Developer Terms.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/notion/attempt-2026-10-31.txt",
+          "quote": "By creating a connection, you agree to Notion's Developer Terms.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    }
+  ],
+  "gotchas": [
+    {
+      "text": "The installation scope cannot be changed after you create the connection.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://developers.notion.com/guides/get-started/authorization",
+          "quote": "including your redirect URI(s) under the OAuth configuration section and the connection's installation scope \u2014 either Any workspace or Selected workspaces only. This can't be changed after creation.",
+          "fetchedAt": "2026-10-30T22:06:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Notion now calls integrations \"Connections\", under Developer tools, so older tutorials use different names.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/notion/attempt-2026-10-31.txt",
+          "quote": "Notion calls these Connections, under \"Developer tools\", next to Workers, Personal access tokens and MCP tokens.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        },
+        {
+          "url": "https://developers.notion.com/guides/get-started/overview",
+          "quote": "A Notion connection \u2014 sometimes called an integration \u2014 connects your workspace to external apps and tools.",
+          "fetchedAt": "2026-10-30T22:06:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "In the create dialog, the first click on Create did nothing until the redirect URI had turned into a chip.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/notion/attempt-2026-10-31.txt",
+          "quote": "The first click on Create connection did nothing, because the redirect URI had not yet become a chip.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Notion tells users on the consent screen that it does not review third-party connections.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/notion/attempt-2026-10-31.txt",
+          "quote": "Notion does not review third party connections",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Listing on the Marketplace is optional. A public connection works through its OAuth flow without being listed.",
+      "confidence": "docs",
+      "evidence": [
+        {
+          "url": "https://developers.notion.com/guides/get-started/marketplace-listing",
+          "quote": "Public connections work independently of Marketplace listings.",
+          "fetchedAt": "2026-10-30T22:06:00.000Z"
+        }
+      ]
+    },
+    {
+      "text": "Deleting a connection revokes its access for everyone who installed it.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/notion/attempt-2026-10-31.txt",
+          "quote": "Deleting this connection permanently revokes its access for everyone who has installed it",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    }
+  ],
+  "automation": {
+    "surface": "ui-only",
+    "surfaceClaim": {
+      "text": "We created the connection by driving Notion's web developer pages.",
+      "confidence": "tested",
+      "evidence": [
+        {
+          "url": "/evidence/notion/attempt-2026-10-31.txt",
+          "quote": "The agent then drove the Notion developer pages in the browser pane.",
+          "fetchedAt": "2026-10-31T00:00:00.000Z"
+        }
+      ]
+    },
+    "agentCan": [
+      {
+        "text": "Create a connection and set its name, scope and redirect URI.",
+        "confidence": "tested",
+        "evidence": [
+          {
+            "url": "/evidence/notion/attempt-2026-10-31.txt",
+            "quote": "Filled the connection name and one redirect URI, then created the connection.",
+            "fetchedAt": "2026-10-31T00:00:00.000Z"
+          }
+        ]
+      },
+      {
+        "text": "Test the authorization URL and the redirect rules without authorizing anything.",
+        "confidence": "tested",
+        "evidence": [
+          {
+            "url": "/evidence/notion/attempt-2026-10-31.txt",
+            "quote": "Requested Notion's authorization URL three times with different redirect_uri values.",
+            "fetchedAt": "2026-10-31T00:00:00.000Z"
+          }
+        ]
+      }
+    ],
+    "youMust": [
+      {
+        "text": "Sign in to Notion. The agent cannot enter credentials.",
+        "confidence": "tested",
+        "evidence": [
+          {
+            "url": "/evidence/notion/attempt-2026-10-31.txt",
+            "quote": "Signing in to Notion is the account owner's job.",
+            "fetchedAt": "2026-10-31T00:00:00.000Z"
+          }
+        ]
+      },
+      {
+        "text": "Agree to the Developer Terms. The agent stopped and asked first.",
+        "confidence": "tested",
+        "evidence": [
+          {
+            "url": "/evidence/notion/attempt-2026-10-31.txt",
+            "quote": "Creating a connection means agreeing to Notion's Developer Terms, which needs the account owner's explicit yes.",
+            "fetchedAt": "2026-10-31T00:00:00.000Z"
+          }
+        ]
+      },
+      {
+        "text": "Each end user must pick pages and approve on the consent screen.",
+        "confidence": "tested",
+        "evidence": [
+          {
+            "url": "/evidence/notion/attempt-2026-10-31.txt",
+            "quote": "Each end user must pick pages and approve on the consent screen.",
+            "fetchedAt": "2026-10-31T00:00:00.000Z"
+          }
+        ]
+      },
+      {
+        "text": "For a Marketplace listing, submit it for review by the Notion team.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://developers.notion.com/guides/get-started/marketplace-listing",
+            "quote": "Submit your listing for review by the Notion team.",
+            "fetchedAt": "2026-10-30T22:06:00.000Z"
+          }
+        ]
+      }
+    ]
+  },
+  "blocked": {
+    "contacts": [],
+    "usualRejections": [
+      {
+        "text": "Listings are rejected for reasons ranging from brand or trademark issues to quality concerns to missing baseline criteria. You can fix them and resubmit.",
+        "confidence": "docs",
+        "evidence": [
+          {
+            "url": "https://developers.notion.com/guides/get-started/marketplace-listing",
+            "quote": "Connections are rejected for various reasons, from brand/trademark issues to quality concerns to situations where the baseline connection criteria isn't met.",
+            "fetchedAt": "2026-10-30T22:06:00.000Z"
+          }
+        ]
+      }
+    ]
+  },
+  "probes": [
+    {
+      "name": "OAuth server metadata (RFC 8414)",
+      "url": "https://api.notion.com/.well-known/oauth-authorization-server",
+      "ok": false,
+      "status": 400,
+      "finding": "not published (HTTP 400)",
+      "probedAt": "2026-10-30T22:07:19.879Z"
+    },
+    {
+      "name": "OpenID Connect discovery",
+      "url": "https://api.notion.com/.well-known/openid-configuration",
+      "ok": false,
+      "status": 400,
+      "finding": "not published (HTTP 400)",
+      "probedAt": "2026-10-30T22:07:19.888Z"
+    },
+    {
+      "name": "OAuth server metadata (RFC 8414)",
+      "url": "https://www.notion.so/.well-known/oauth-authorization-server",
+      "ok": false,
+      "status": 404,
+      "finding": "not published (HTTP 404)",
+      "probedAt": "2026-10-30T22:07:20.246Z"
+    },
+    {
+      "name": "OpenID Connect discovery",
+      "url": "https://www.notion.so/.well-known/openid-configuration",
+      "ok": false,
+      "status": 404,
+      "finding": "not published (HTTP 404)",
+      "probedAt": "2026-10-30T22:07:20.247Z"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://developers.notion.com/guides/get-started/authorization",
+      "title": "Authorization - Notion Developers",
+      "fetchedAt": "2026-10-30T22:06:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://developers.notion.com/guides/get-started/overview",
+      "title": "Overview - Notion Developers",
+      "fetchedAt": "2026-10-30T22:06:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://developers.notion.com/guides/get-started/marketplace-listing",
+      "title": "List on the Marketplace - Notion Developers",
+      "fetchedAt": "2026-10-30T22:06:00.000Z",
+      "status": "ok",
+      "note": "official"
+    },
+    {
+      "url": "https://docs.composio.dev/toolkits/managed-auth",
+      "title": "Managed OAuth apps - Composio",
+      "fetchedAt": "2026-10-30T18:20:00.000Z",
+      "status": "ok",
+      "note": "official"
+    }
+  ],
+  "gaps": [
+    "We did not open the Marketplace submission flow, which opens in a separate tab, so its listing requirements are only what the docs say.",
+    "We did not authorize a user, exchange a token, or reveal the client secret.",
+    "Only an OAuth connection in a personal workspace was tested, not an organization workspace.",
+    "No official support or contact channel for review questions was found in the pages read."
+  ]
+}
