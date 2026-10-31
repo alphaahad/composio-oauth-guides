@@ -1,6 +1,6 @@
 import { geminiLlm } from "@/lib/llm";
 import { defaultDeps, resolveInput, runPipeline, slugify } from "@/lib/pipeline";
-import { checkRate } from "@/lib/ratelimit";
+import { checkRateShared } from "@/lib/ratelimit";
 import { getLive, getSeed, saveLive } from "@/lib/store";
 
 export const maxDuration = 120; // live generation reads several pages and calls the model twice
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   }
 
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "local";
-  const rate = checkRate(ip);
+  const rate = await checkRateShared(ip);
   if (!rate.ok) {
     return Response.json(
       { error: `Rate limit reached. Try again in ${Math.ceil(rate.retryAfterSec / 60)} minute(s).` },

@@ -95,7 +95,7 @@ The app is a standard Next.js 16 app (Cache Components enabled) and deploys to V
 - **The plain-answer comparison is one run of one model.** "Can't confirm" means the pages we read are silent, not that the claim is false.
 - **Tested claims describe one account on one day.** Provider consoles change; the test logs are dated.
 - **No end-user flows were exercised.** We stopped at each consent screen.
-- Rate limiting is per server instance, so on serverless it is a brake on casual abuse, not a security boundary.
+- Rate limits are shared across serverless instances through Redis. Without Redis (local development) they are per process. They are a brake on casual abuse and runaway model cost, not a security boundary: they key on the forwarded client IP.
 
 ## Layout
 
