@@ -171,6 +171,11 @@ export async function* runPipeline(rawInput: string, deps: Deps): AsyncGenerator
   // Only pages on the user's own website are official by default. Everything else must be classified;
   // if classification fails we stay conservative and treat it as community ("reported"), never "docs".
   const official = new Set<string>(candidates.filter((c) => input.website && sameSite(c.url, input.website)).map((c) => c.url));
+  // A page counts as official if the classifier vouched for it, or for another page on the exact same host. Models often
+  // guess docs paths that do not exist (linear.app/docs/oauth) yet still identify the right host, while the pages that
+  // really load come from llms.txt or from links: the host is what was confirmed. Exact host only: approving
+  // pipedrive.readme.io says nothing about other tenants of readme.io.
+  const isOfficial = (u: string) => official.has(u) || (!SHARED_HOSTS.has(hostOf(u)) && [...official].some((o) => hostOf(o) === hostOf(u)));
   const toClassify = candidates.filter((c) => !official.has(c.url) && !c.guess);
   if (toClassify.length > 0) {
     yield { type: "stage", stage: "discover", status: "start", message: "Sorting official pages from community pages" };
@@ -191,7 +196,7 @@ export async function* runPipeline(rawInput: string, deps: Deps): AsyncGenerator
   // links were never followed. Ask about where each guess actually landed, with the same check suggested pages get.
   const landed = new Map<string, { url: string; title?: string }>();
   for (const { c, r } of results) {
-    if (!c.guess || !r.ok || official.has(c.url) || official.has(r.page.url)) continue;
+    if (!c.guess || !r.ok || isOfficial(c.url) || isOfficial(r.page.url)) continue;
     landed.set(r.page.url, { url: r.page.url, title: r.page.title });
   }
   if (landed.size > 0) {
@@ -211,7 +216,7 @@ export async function* runPipeline(rawInput: string, deps: Deps): AsyncGenerator
   const seen = new Set(results.flatMap(({ c, r }) => [norm(c.url), r.ok ? norm(r.page.url) : ""]));
   const pool = new Map<string, { url: string; text: string; score: number }>();
   for (const { c, r } of results) {
-    if (!r.ok || !(official.has(c.url) || official.has(r.page.url))) continue;
+    if (!r.ok || !(isOfficial(c.url) || isOfficial(r.page.url))) continue;
     for (const l of rankLinks(r.links ?? [], r.page.url, 0)) {
       const u = new URL(l.url);
       const key = u.origin + u.pathname; // same page with different query strings is one page
@@ -253,13 +258,13 @@ export async function* runPipeline(rawInput: string, deps: Deps): AsyncGenerator
     }
     if (seenFinal.has(norm(r.page.url))) continue; // different candidates can redirect to the same page
     seenFinal.add(norm(r.page.url));
-    const isOfficial = official.has(c.url) || official.has(r.page.url);
-    if (!isOfficial && community >= MAX_COMMUNITY) continue;
+    const pageOfficial = isOfficial(c.url) || isOfficial(r.page.url);
+    if (!pageOfficial && community >= MAX_COMMUNITY) continue;
     if (pages.length >= MAX_PAGES) continue;
-    if (!isOfficial) community++;
-    pages.push({ ...r.page, official: isOfficial });
-    sources.push({ url: r.page.url, title: r.page.title ?? c.title, fetchedAt: r.page.fetchedAt, status: "ok", note: isOfficial ? "official" : "not confirmed as the provider's own page (claims from here are labeled 'reported')" });
-    yield { type: "stage", stage: "fetch", status: "done", message: `Read ${hostOf(r.page.url)} (${Math.round(r.page.text.length / 1000)}k chars${isOfficial ? "" : ", unconfirmed source"})` };
+    if (!pageOfficial) community++;
+    pages.push({ ...r.page, official: pageOfficial });
+    sources.push({ url: r.page.url, title: r.page.title ?? c.title, fetchedAt: r.page.fetchedAt, status: "ok", note: pageOfficial ? "official" : "not confirmed as the provider's own page (claims from here are labeled 'reported')" });
+    yield { type: "stage", stage: "fetch", status: "done", message: `Read ${hostOf(r.page.url)} (${Math.round(r.page.text.length / 1000)}k chars${pageOfficial ? "" : ", unconfirmed source"})` };
   }
 
   for (const [key, n] of failedByHost) {
@@ -340,6 +345,32 @@ function safeOrigin(u?: string): string | undefined {
     return undefined;
   }
 }
+
+/** Hosts that publish for thousands of unrelated owners: approving one page there approves nothing else. */
+const SHARED_HOSTS = new Set([
+  "github.com",
+  "gist.github.com",
+  "gitlab.com",
+  "bitbucket.org",
+  "medium.com",
+  "dev.to",
+  "stackoverflow.com",
+  "reddit.com",
+  "www.reddit.com",
+  "youtube.com",
+  "www.youtube.com",
+  "docs.google.com",
+  "drive.google.com",
+  "sites.google.com",
+  "notion.site",
+  "www.notion.so",
+  "npmjs.com",
+  "www.npmjs.com",
+  "pypi.org",
+  "wikipedia.org",
+  "en.wikipedia.org",
+  "web.archive.org",
+]);
 
 function hostOf(u: string) {
   try {

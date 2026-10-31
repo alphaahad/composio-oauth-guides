@@ -108,6 +108,68 @@ describe("pages found by guessing an address", () => {
   });
 });
 
+describe("host-level official status", () => {
+  const HOST = "https://docs.example.com";
+  const ok = (url: string, text = DOC_TEXT) => ({ ok: true as const, status: 200, page: { url, title: "Doc", text, fetchedAt: "2026-10-30T00:00:00.000Z" } });
+  const missing = (url: string) => ({ ok: false as const, url, status: 404, error: "HTTP 404" });
+  const guideOf = (events: PipelineEvent[]) => {
+    const r = resultOf(events);
+    if (r?.type !== "result") throw new Error("no result");
+    return r.guide;
+  };
+
+  it("counts pages from llms.txt as official when the classifier vouched for the host, even if its guessed path 404s", async () => {
+    // The model guessed /missing (a 404) but named the right host; the docs that really load are listed in llms.txt.
+    const REAL = `${HOST}/oauth-guide`;
+    const deps = mkDeps({
+      fetchPage: async (url) => {
+        if (url === `${HOST}/llms.txt`) return ok(url, `# Docs\n- ${REAL}: OAuth guide\n`);
+        if (url === REAL) return ok(url);
+        return missing(url);
+      },
+      llm: {
+        discover: async () => ({ website: HOST, urls: [{ url: `${HOST}/missing` }] }),
+        classify: async (_a, urls) => new Set(urls.map((u) => u.url).filter((u) => u === `${HOST}/missing`)),
+        extract: async () => extraction({ steps: [{ text: "Register in the portal", quote: "Register your app in the developer portal.", sourceUrl: REAL }], verdictItem: item("Review", "Apps listed in the marketplace go through review.", REAL) }),
+      },
+    });
+    const g = guideOf(await run("Example", deps));
+    expect(g.sources.find((s) => s.url === REAL)?.note).toBe("official");
+    expect(g.steps[0].confidence).toBe("docs");
+  });
+
+  it("does not extend official status to a different host", async () => {
+    const OTHER = "https://blog.example.net/oauth-notes";
+    const deps = mkDeps({
+      fetchPage: async (url) => (url === OTHER || url === `${HOST}/real` ? ok(url) : missing(url)),
+      llm: {
+        discover: async () => ({ website: HOST, urls: [{ url: `${HOST}/real` }, { url: OTHER }] }),
+        classify: async (_a, urls) => new Set(urls.map((u) => u.url).filter((u) => u.startsWith(HOST))),
+        extract: async () => extraction(),
+      },
+    });
+    const g = guideOf(await run("Example", deps));
+    expect(g.sources.find((s) => s.url === `${HOST}/real`)?.note).toBe("official");
+    expect(g.sources.find((s) => s.url === OTHER)?.note).toMatch(/not confirmed/);
+  });
+
+  it("never extends it across a shared host such as github.com", async () => {
+    const A = "https://github.com/acme/oauth-docs";
+    const B = "https://github.com/someone-else/oauth-notes";
+    const deps = mkDeps({
+      fetchPage: async (url) => (url === A || url === B ? ok(url) : missing(url)),
+      llm: {
+        discover: async () => ({ urls: [{ url: A }, { url: B }] }),
+        classify: async (_a, urls) => new Set(urls.map((u) => u.url).filter((u) => u === A)),
+        extract: async () => extraction(),
+      },
+    });
+    const g = guideOf(await run("Acme", deps));
+    expect(g.sources.find((s) => s.url === A)?.note).toBe("official");
+    expect(g.sources.find((s) => s.url === B)?.note).toMatch(/not confirmed/);
+  });
+});
+
 describe("runPipeline", () => {
   it("verifies real quotes, downgrades fabricated ones, never invents a wait time", async () => {
     const events = await run("Example", mkDeps());
@@ -411,7 +473,7 @@ describe("verdict from absence", () => {
     if (r?.type !== "result") throw new Error("no result");
     expect(r.guide.verdict.value).toBe("no-approval-needed");
     expect(r.guide.verdict.claim.confidence).toBe("inferred");
-    expect(r.guide.verdict.claim.text).toMatch(/None of the 2 official pages/);
+    expect(r.guide.verdict.claim.text).toMatch(/None of the \d+ official pages/); // a guessed address on a vouched-for host counts too
   });
 
   it("refuses to infer an absence from a single page", async () => {
