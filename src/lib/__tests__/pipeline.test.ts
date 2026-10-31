@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RateLimitError } from "../llm";
-import { displayName, resolveInput, runPipeline, slugify, type Deps, type PipelineEvent } from "../pipeline";
+import { displayName, isPublicHostname, resolveInput, runPipeline, slugify, type Deps, type PipelineEvent } from "../pipeline";
 import type { ExtractedGuide } from "../schema";
 
 const DOC_URL = "https://docs.example.com/oauth";
@@ -482,8 +482,71 @@ describe("helpers", () => {
     expect(resolveInput("developer.github.com").name).toBe("Github");
     expect(() => resolveInput("x".repeat(101))).toThrow();
   });
-  it("slugify", () => {
-    expect(slugify("Google Drive!")).toBe("google-drive");
-    expect(slugify("???")).toBe("app");
+  it("slugify keeps clean names clean", () => {
+    expect(slugify("Google Drive")).toBe("google-drive");
+    expect(slugify("GitHub")).toBe("github");
+    expect(slugify("Cal.com")).toBe("cal-com");
+  });
+});
+
+describe("slugs never collide for different apps (regression: every non-Latin name became 'app')", () => {
+  it("adds a stable hash when characters are lost", () => {
+    expect(slugify("C++")).not.toBe(slugify("C#"));
+    expect(slugify("C++")).toMatch(/^c-[a-z0-9]{4,6}$/);
+    expect(slugify("日本語アプリ")).toMatch(/^app-[a-z0-9]{4,6}$/);
+    expect(slugify("日本語アプリ")).not.toBe(slugify("中文应用"));
+    expect(slugify("日本語アプリ")).toBe(slugify("日本語アプリ")); // stable
+    expect(slugify("???")).toMatch(/^app-[a-z0-9]{4,6}$/);
+  });
+  it("always yields a valid slug", () => {
+    for (const n of ["C++", "日本語アプリ", "A".repeat(100), "😀", "AT&T", "x"]) expect(slugify(n)).toMatch(/^[a-z0-9][a-z0-9-]{0,59}$/);
+  });
+});
+
+describe("input validation (regression: junk and internal addresses were accepted)", () => {
+  it.each([
+    "169.254.169.254",
+    "http://169.254.169.254/latest/meta-data",
+    "http://127.0.0.1",
+    "https://127.0.0.1:3000",
+    "localhost:3000",
+    "http://localhost:3000",
+    "https://[::1]/",
+    "javascript:alert(1)",
+    "file:///etc/passwd",
+    "data:text/html,<b>x</b>",
+    "<script>alert(1)</script>",
+    "../../etc/passwd",
+    "'; DROP TABLE guides; --",
+    "http://user:pw@example.com",
+    "https://intranet",
+    "http://printer.local",
+    "10.0.0.1",
+    "foo\u0007bar",
+    "a".repeat(101),
+    "   ",
+  ])("rejects %j", (input) => {
+    expect(() => resolveInput(input)).toThrow(/app name or a public website/);
+  });
+
+  it.each(["Slack", "GitHub", "google drive", "C++", "C#", "AT&T", "O'Reilly", "Microsoft 365", "Zoho Mail", "x", "日本語アプリ", "Dr. Chrono"])("accepts the app name %j", (input) => {
+    expect(() => resolveInput(input)).not.toThrow();
+  });
+
+  it("title-cases plain lowercase names, including non-ASCII letters", () => {
+    expect(resolveInput("zoho mail").name).toBe("Zoho Mail");
+    expect(resolveInput("éclair").name).toBe("Éclair");
+  });
+
+  it("accepts public websites and derives a sensible name", () => {
+    expect(resolveInput("https://www.notion.so/product")).toEqual({ name: "Notion", website: "https://www.notion.so" });
+    expect(resolveInput("developer.atlassian.com").name).toBe("Atlassian");
+    expect(resolveInput("https://docs.example.co.uk/x").name).toBe("Example");
+    expect(resolveInput("example.com:8080/path").website).toBe("https://example.com");
+  });
+
+  it("isPublicHostname rules", () => {
+    for (const h of ["slack.com", "docs.github.com", "a-b.co.uk", "xn--bcher-kva.de"]) expect(isPublicHostname(h)).toBe(true);
+    for (const h of ["localhost", "127.0.0.1", "10.0.0.1", "::1", "[::1]", "intranet", "x.local", "x.internal", "a..b.com", "-bad.com", "bad-.com", "x.123"]) expect(isPublicHostname(h)).toBe(false);
   });
 });

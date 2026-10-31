@@ -1,0 +1,37 @@
+# QA record
+
+A full pass over the production build (`npm run build && npm run start`) before release. Source-side issues (a provider page changing, a model's wording) are tracked on `/verification`; this file covers faults on our side.
+
+## What was exercised
+
+| Area | Method | Result |
+| --- | --- | --- |
+| Accessibility | axe-core 4.10 (WCAG 2.0/2.1/2.2 A and AA, best practice) on home, 3 curated guides, a live guide, `/verification` and the 404, in light and dark, plus 375px mobile | 0 violations |
+| Keyboard | Tab order, skip link (focus lands in `<main>`), visible focus ring | Pass |
+| Responsive | 375px width: no horizontal scroll on any page, 56px search input, tap targets | Pass |
+| HTTP behavior | 25 routes: real 404 for unknown or invalid slugs, 308 for uppercase slugs, 405 on `GET /api/generate`, security headers, no `X-Powered-By`, `no-store` on `/api` | Pass |
+| Input handling | 11 hostile or malformed inputs (schemes, IPs, credentials, markup, oversize, bad JSON, wrong types) | All rejected with a clear 400 |
+| Live generation | Fresh run end to end (about 10 s), shareable link opens, listed publicly only when an official source was found | Pass |
+| Cancel | Real click mid-run: one request, UI returns to idle, no restart | Pass |
+| Failure states | Malformed guide file (branded error page with a reference; Try again recovers once the cause is fixed). A storage outage takes the same path but was not simulated | Pass |
+| Links | Every internal link (373 links across 10 pages) and all 37 external source links | All 200 |
+| Console | Fresh tab through every page type | No errors |
+| Evidence | `npm run verify`: 200 guide quotes and 22 research quotes re-fetched from the live pages | All found |
+| Unit tests | 197 across 11 files | Pass |
+
+## Faults found on our side, and fixed
+
+- A request that never finished could leave the progress card spinning forever; a watchdog, elapsed counter and a working Cancel now bound every run.
+- Cancel restarted the search (one DOM button was reused as submit); distinct keys plus `preventDefault`.
+- Unknown guide URLs answered `200`, and `/g/GitHub` did not redirect. Streamed responses commit their status early, so `src/proxy.ts` now decides 404 and 308 before the page renders.
+- The error page's Try again only re-rendered on the client and never refetched; it now refreshes the route.
+- The skip link did not move focus into the page for browsers that need a focusable target; `<main>` is now focusable.
+- Missing contrast, tap-target sizes, forced-colors support and a mobile search field that rendered too short.
+- Search accepted junk (`javascript:` URLs, IP addresses, markup); it now accepts only app names and public websites.
+- A single corrupt saved guide hid every other guide in the recent list; one bad file is now skipped.
+- Missing favicon, share image, `robots.txt`, error boundaries, page titles per guide, and security headers.
+
+## Known and accepted
+
+- Under `curl`, a page whose data fails to load leaves the HTTP stream open after the error payload; browsers recover and show the error page. This is how Next.js reports a failure after streaming starts.
+- Rate limiting is per server instance (see the README).

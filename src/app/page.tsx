@@ -42,7 +42,7 @@ async function RecentGuides({ exclude }: { exclude: string[] }) {
 export default async function Home() {
   const seeds = await listSeeds();
   return (
-    <main className="page">
+    <main id="main" tabIndex={-1} className="page">
       <div className="container">
         <section className="hero enter">
           <p className="eyebrow">OAuth app setup, decoded</p>

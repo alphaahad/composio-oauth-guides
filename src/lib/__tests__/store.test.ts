@@ -7,7 +7,9 @@ import type { Guide } from "../schema";
 // store.ts imports next/cache for the cached seed listing; the live-guide functions do not use it.
 vi.mock("next/cache", () => ({ cacheLife: () => {} }));
 
-const guide = (slug: string, name: string): Guide => ({
+const OFFICIAL = { url: "https://docs.example.com/oauth", fetchedAt: "2026-10-31T00:00:00.000Z", status: "ok" as const, note: "official" };
+
+const guide = (slug: string, name: string, official = true): Guide => ({
   slug,
   appName: name,
   origin: "live",
@@ -23,7 +25,7 @@ const guide = (slug: string, name: string): Guide => ({
   scopeTiers: [], steps: [], redirectRules: [], requirements: [], gotchas: [],
   automation: { surface: "unknown", agentCan: [], youMust: [] },
   blocked: { contacts: [], usualRejections: [] },
-  probes: [], sources: [], gaps: [],
+  probes: [], sources: official ? [OFFICIAL] : [], gaps: [],
 });
 
 let dir: string;
@@ -62,6 +64,17 @@ describe("live guide store", () => {
     await saveLive(guide("ok", "Ok"));
     (await import("node:fs")).writeFileSync(join(dir, "bad.json"), "{not json");
     expect((await listLive(10)).map((g) => g.slug)).toEqual(["ok"]);
+  });
+
+  it("lists only guides built on confirmed official docs, but junk stays reachable by its link (regression: public list could be filled with junk)", async () => {
+    const { saveLive, listLive, getLive, isListable } = await import("../store");
+    await saveLive(guide("slack-like", "Slack Like"));
+    await saveLive(guide("typo-app", "Qwerty Zxcv", false));
+    expect((await listLive(10)).map((g) => g.slug)).toEqual(["slack-like"]);
+    expect((await getLive("typo-app"))?.appName).toBe("Qwerty Zxcv"); // still viewable directly
+    expect(isListable(guide("a", "A", false))).toBe(false);
+    expect(isListable({ ...guide("b", "B"), sources: [{ ...OFFICIAL, note: "not confirmed as the provider's own page (claims from here are labeled 'reported')" }] })).toBe(false);
+    expect(isListable({ ...guide("c", "C"), sources: [{ ...OFFICIAL, status: "failed" as const }] })).toBe(false);
   });
 
   it("rejects unsafe slugs", async () => {

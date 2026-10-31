@@ -7,6 +7,10 @@ export const maxDuration = 120; // live generation reads several pages and calls
 
 const sse = (obj: unknown) => `data: ${JSON.stringify(obj)}\n\n`;
 
+export function GET() {
+  return Response.json({ error: "Use POST with a JSON body: { \"query\": \"app name or website\" }." }, { status: 405, headers: { Allow: "POST" } });
+}
+
 export async function POST(req: Request) {
   const body = (await req.json().catch(() => null)) as { query?: unknown; fresh?: unknown } | null;
   const query = typeof body?.query === "string" ? body.query : "";
@@ -19,7 +23,7 @@ export async function POST(req: Request) {
   }
   const slug = slugify(resolved.name);
 
-  const headers = { "content-type": "text/event-stream; charset=utf-8", "cache-control": "no-cache, no-transform", connection: "keep-alive" };
+  const headers = { "content-type": "text/event-stream; charset=utf-8", "cache-control": "no-cache, no-transform", connection: "keep-alive", "x-accel-buffering": "no" }; // last one stops proxies from buffering the stream
   const quick = (obj: unknown) => new Response(sse(obj), { headers });
 
   // Curated seed or a recent live guide: no model call, instant.

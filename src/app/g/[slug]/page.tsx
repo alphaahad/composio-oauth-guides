@@ -1,11 +1,13 @@
-import { Suspense, type ReactNode } from "react";
+import type { Metadata } from "next";
+import { connection } from "next/server";
+import { cache, type ReactNode } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { ClaimList, Source, Tag } from "@/components/Claims";
 import { CopyButton } from "@/components/CopyButton";
 import { formatDate, guideToMarkdown, RISK_LEVEL, splitEffort, VERDICT_HEADLINE, VERDICT_TONE } from "@/lib/present";
 import type { Guide } from "@/lib/schema";
-import { getGuide } from "@/lib/store";
+import { getLive, getSeedCached, isValidSlug, listSeeds } from "@/lib/store";
 
 const SURFACE_LABEL = {
   api: "Creatable through an API",
@@ -16,23 +18,41 @@ const SURFACE_LABEL = {
   unknown: "Not stated in the sources we read",
 } as const;
 
-// Live guides are created at request time, so params and the store read sit behind Suspense
-// (Cache Components requires runtime data to be streamed, not blocking the static shell).
-export default function GuidePage({ params }: PageProps<"/g/[slug]">) {
+/**
+ * Resolve the guide BEFORE anything streams, so a missing guide is a real 404 and a storage failure is a real error page
+ * (data fetched inside a Suspense boundary would already have sent a 200). Seeds come from a cached lookup and are
+ * prerendered; live guides are created at request time, so they opt out of caching with connection().
+ */
+const loadGuide = cache(async (slug: string): Promise<Guide | null> => {
+  const seed = await getSeedCached(slug);
+  if (seed) return seed;
+  await connection();
+  return getLive(slug);
+});
+
+export async function generateStaticParams() {
+  return (await listSeeds()).map((g) => ({ slug: g.slug }));
+}
+
+export async function generateMetadata({ params }: PageProps<"/g/[slug]">): Promise<Metadata> {
+  const { slug } = await params;
+  const g = await loadGuide(slug);
+  if (!g) return { title: "Guide not found", robots: { index: false } };
+  const title = `${g.appName}: OAuth app setup`;
+  const description = g.summary.length > 200 ? `${g.summary.slice(0, 197)}...` : g.summary;
+  return { title, description, openGraph: { type: "article", title, description }, twitter: { card: "summary_large_image", title, description } };
+}
+
+export default async function GuidePage({ params }: PageProps<"/g/[slug]">) {
+  const { slug } = await params;
+  const lower = slug.toLowerCase();
+  if (lower !== slug && isValidSlug(lower)) permanentRedirect(`/g/${lower}`); // /g/GitHub -> /g/github
+  const g = await loadGuide(slug);
+  if (!g) notFound();
   return (
-    <main className="page">
+    <main id="main" tabIndex={-1} className="page">
       <div className="container">
-        <Suspense
-          fallback={
-            <div className="guide-head">
-              <p className="eyebrow">Loading guide</p>
-            </div>
-          }
-        >
-          {params.then(({ slug }) => (
-            <GuideContent slug={slug} />
-          ))}
-        </Suspense>
+        <GuideView g={g} />
       </div>
     </main>
   );
@@ -82,9 +102,7 @@ function ComposioNote({ g }: { g: Guide }) {
   );
 }
 
-async function GuideContent({ slug }: { slug: string }) {
-  const g = await getGuide(slug);
-  if (!g) notFound();
+function GuideView({ g }: { g: Guide }) {
 
   const tone = VERDICT_TONE[g.verdict.value];
   const effort = splitEffort(g.effort.text);
@@ -96,7 +114,6 @@ async function GuideContent({ slug }: { slug: string }) {
 
   return (
     <>
-      <title>{`${g.appName}: OAuth app setup`}</title>
       <Link href="/" className="back">
         ← All guides
       </Link>

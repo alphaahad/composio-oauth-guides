@@ -1,6 +1,6 @@
 import { lookupComposio, type ComposioLookup } from "./composio";
 import { fetchPage, type FetchResult } from "./fetcher";
-import { guessUrls, guessWebsite, rankLinks, sameSite, urlsFromLlmsTxt } from "./discovery";
+import { guessUrls, guessWebsite, rankLinks, registrableDomain, sameSite, urlsFromLlmsTxt } from "./discovery";
 import { RateLimitError, type DiscoveredUrl, type Discovery, type Llm } from "./llm";
 import { probeOrigins } from "./probes";
 import { ExtractedGuide, type Claim, type Guide, type ProbeResult, type SourceRef } from "./schema";
@@ -30,18 +30,59 @@ const MAX_COMMUNITY = 2;
 const PAGE_CHARS = 45_000;
 const TOTAL_CHARS = 170_000;
 
+/** Small, stable, non-cryptographic hash used only to keep slugs for lossy names distinct. */
+function shortHash(s: string): string {
+  let h = 5381;
+  for (const ch of s.normalize("NFKC").toLowerCase()) h = ((h * 33) ^ ch.codePointAt(0)!) >>> 0;
+  return h.toString(36).slice(0, 6).padStart(4, "0");
+}
+
+/**
+ * ASCII slug for URLs. Names that survive the conversion intact keep a clean slug ("Google Drive" -> "google-drive").
+ * Names that lose characters ("C++" -> "c", "日本語アプリ" -> "") get a short hash so different apps never share a page.
+ */
 export function slugify(s: string): string {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "app";
+  const base = s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 52);
+  const lossy = /[^a-z0-9\s.\-_']/i.test(s.trim());
+  if (!base) return `app-${shortHash(s)}`;
+  return lossy ? `${base}-${shortHash(s)}` : base;
+}
+
+const NAME_CHARS = /^[\p{L}\p{N}][\p{L}\p{N} .,&'\u2019+#\-_/!]*$/u;
+const HOST_LABEL = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/i;
+
+/** A public DNS name with at least one dot. Rejects IP literals, localhost, single labels and internal-looking TLDs. */
+export function isPublicHostname(host: string): boolean {
+  const h = host.toLowerCase().replace(/\.$/, "");
+  if (!h.includes(".") || h.length > 253) return false;
+  if (/^[\d.]+$/.test(h) || h.includes(":") || h.startsWith("[")) return false; // IPv4 / IPv6 literals
+  const labels = h.split(".");
+  if (!labels.every((l) => HOST_LABEL.test(l))) return false;
+  const tld = labels[labels.length - 1];
+  if (/^\d+$/.test(tld) || ["localhost", "local", "internal", "lan", "home", "corp", "test", "invalid", "example"].includes(tld)) return false;
+  return true;
 }
 
 export function resolveInput(raw: string): { name: string; website?: string } {
   const input = raw.trim();
-  if (!input || input.length > 100 || /[\u0000-\u001f]/.test(input)) throw new Error("Enter an app name or website (max 100 characters).");
-  const looksLikeUrl = /^https?:\/\//i.test(input) || /^[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(input);
-  if (!looksLikeUrl) return { name: input === input.toLowerCase() ? input.replace(/\b[a-z]/g, (c) => c.toUpperCase()) : input };
-  const url = new URL(/^https?:\/\//i.test(input) ? input : `https://${input}`);
-  const parts = url.hostname.replace(/^www\./, "").split(".");
-  const label = parts.length >= 2 ? parts[parts.length - 2] : parts[0];
+  const BAD = "Enter an app name or a public website (max 100 characters).";
+  if (!input || input.length > 100 || /[\u0000-\u001f\u007f]/.test(input)) throw new Error(BAD);
+  const hasScheme = /^[a-z][a-z0-9+.-]*:(?!\d+(\/|$))/i.test(input); // "javascript:" yes, "example.com:8080" no
+  const looksLikeUrl = /^https?:\/\//i.test(input) || /^[a-z0-9-]+(\.[a-z0-9-]+)+(:\d+)?(\/\S*)?$/i.test(input);
+  if (hasScheme && !/^https?:\/\//i.test(input)) throw new Error(BAD); // javascript:, file:, data: and friends
+  if (!looksLikeUrl) {
+    // An app name: letters, numbers and ordinary punctuation only. Keeps markup and injection strings out of saved guides.
+    if (!NAME_CHARS.test(input)) throw new Error(BAD);
+    return { name: input === input.toLowerCase() ? input.replace(/(^|[^\p{L}\p{N}])(\p{L})/gu, (_m, pre: string, ch: string) => pre + ch.toUpperCase()) : input };
+  }
+  let url: URL;
+  try {
+    url = new URL(/^https?:\/\//i.test(input) ? input : `https://${input}`);
+  } catch {
+    throw new Error(BAD);
+  }
+  if (url.username || url.password || !isPublicHostname(url.hostname)) throw new Error(BAD);
+  const label = registrableDomain(url.hostname).split(".")[0];
   return { name: label.charAt(0).toUpperCase() + label.slice(1), website: `https://${url.hostname}` };
 }
 

@@ -1,14 +1,12 @@
 import { promises as fs } from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { cacheLife } from "next/cache";
 import { Guide } from "./schema";
+import { isValidSlug, liveDirs, redis, TTL_SECONDS, upstash } from "./storage";
+
+export { isValidSlug };
 
 const SEED_DIR = path.join(process.cwd(), "guides");
-const TTL_SECONDS = 7 * 24 * 3600;
-const SLUG = /^[a-z0-9][a-z0-9-]{0,59}$/;
-
-export const isValidSlug = (s: string) => SLUG.test(s);
 
 /** Seed guides ship in the repo: curated, human-reviewed. */
 export async function getSeed(slug: string): Promise<Guide | null> {
@@ -23,6 +21,12 @@ export async function getSeed(slug: string): Promise<Guide | null> {
 }
 
 /** Seeds only change on deploy, so the listing is cached (also keeps the home page in the static shell). */
+export async function getSeedCached(slug: string): Promise<Guide | null> {
+  "use cache";
+  cacheLife("max");
+  return getSeed(slug);
+}
+
 export async function listSeeds(): Promise<Guide[]> {
   "use cache";
   cacheLife("max");
@@ -39,24 +43,6 @@ export async function listSeeds(): Promise<Guide[]> {
 /* Live guides: Upstash Redis over REST when configured (required in production, where instances share no memory
    or disk), otherwise JSON files under .data/live for local development. Route handlers and pages do not share
    module state, so an in-memory Map is not an option. */
-const liveDirs = () => (process.env.LIVE_DIR ? [process.env.LIVE_DIR] : [path.join(process.cwd(), ".data", "live"), path.join(os.tmpdir(), "oauth-guides-live")]);
-const upstash = () => {
-  const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
-  return url && token ? { url, token } : null;
-};
-
-async function redis(cmd: (string | number)[]): Promise<unknown> {
-  const u = upstash()!;
-  const res = await fetch(u.url, {
-    method: "POST",
-    headers: { authorization: `Bearer ${u.token}`, "content-type": "application/json" },
-    body: JSON.stringify(cmd),
-    signal: AbortSignal.timeout(5_000),
-  });
-  if (!res.ok) throw new Error(`store HTTP ${res.status}`);
-  return ((await res.json()) as { result: unknown }).result;
-}
 
 export async function getLive(slug: string): Promise<Guide | null> {
   if (!isValidSlug(slug)) return null;
@@ -108,6 +94,15 @@ export async function saveLive(guide: Guide): Promise<void> {
   throw lastErr instanceof Error ? lastErr : new Error("could not save guide");
 }
 
+/**
+ * Only guides with at least one page confirmed as the provider's own documentation are listed publicly. Anything
+ * else (a typo, a made-up name, a site with no readable docs) is still viewable by its link, but is not advertised,
+ * so the public list cannot be filled with junk by anyone who types into the search box.
+ */
+export function isListable(g: Guide): boolean {
+  return g.sources.some((s) => s.status === "ok" && (s.note ?? "").startsWith("official"));
+}
+
 /** Recently generated live guides, newest first. Empty on any storage trouble: the home page must not break over this. */
 export async function listLive(limit = 12): Promise<Guide[]> {
   try {
@@ -142,7 +137,7 @@ export async function listLive(limit = 12): Promise<Guide[]> {
     return jsons.flatMap((j) => {
       try {
         const parsed = Guide.safeParse(JSON.parse(j));
-        return parsed.success ? [parsed.data] : [];
+        return parsed.success && isListable(parsed.data) ? [parsed.data] : [];
       } catch {
         return []; // one corrupt file must not hide every other guide
       }

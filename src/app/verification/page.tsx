@@ -69,7 +69,7 @@ export default async function VerificationPage() {
   );
 
   return (
-    <main className="page">
+    <main id="main" tabIndex={-1} className="page">
       <div className="container">
         <Link href="/" className="back">
           ← All guides

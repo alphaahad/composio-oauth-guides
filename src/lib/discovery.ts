@@ -3,7 +3,9 @@ const KEYWORDS = /oauth|authent|authoriz|app-review|verification|developer|scope
 /** Last two host labels. Crude (wrong for co.uk-style suffixes) but only used to propose guesses and an "is this the same site" check. */
 export function registrableDomain(host: string): string {
   const parts = host.replace(/^www\./, "").split(".");
-  return parts.slice(-2).join(".");
+  // Two-part public suffixes such as co.uk and com.au: the registrable name sits one label further left.
+  const twoPart = parts.length >= 3 && parts[parts.length - 1].length === 2 && ["co", "com", "org", "net", "gov", "edu", "ac"].includes(parts[parts.length - 2]);
+  return parts.slice(twoPart ? -3 : -2).join(".");
 }
 
 export function sameSite(url: string, website: string): boolean {

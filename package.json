@@ -1,5 +1,5 @@
 {
-  "name": "app",
+  "name": "composio-oauth-guides",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "verify": "tsx scripts/verify-seeds.ts && tsx scripts/verify-research.ts",
+    "check": "npm run typecheck && npm run lint && npm test && npm run verify"
   },
   "dependencies": {
     "@google/genai": "^2.32.0",
@@ -25,5 +28,6 @@
     "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^5.0.5"
-  }
+  },
+  "description": "Evidence-backed guides to setting up and getting approval for provider OAuth apps"
 }

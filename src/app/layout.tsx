@@ -2,9 +2,15 @@ import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import "./globals.css";
 
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000");
+const DESCRIPTION = "How hard is it to set up and get approval for a provider OAuth app? Look up an app and get a guide where every claim shows its source.";
+
 export const metadata: Metadata = {
-  title: "OAuth App Guides",
-  description: "How hard is it to set up and get approval for a provider OAuth app? Look up an app and get an evidence-backed guide.",
+  metadataBase: new URL(SITE),
+  title: { default: "OAuth App Guides", template: "%s | OAuth Guides" },
+  description: DESCRIPTION,
+  openGraph: { type: "website", siteName: "OAuth Guides", title: "OAuth App Guides", description: DESCRIPTION },
+  twitter: { card: "summary_large_image", title: "OAuth App Guides", description: DESCRIPTION },
 };
 
 export const viewport: Viewport = {
@@ -19,6 +25,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en">
       <body>
+        <a className="skip" href="#main">
+          Skip to content
+        </a>
         <header className="site-header">
           <div className="site-header-inner">
             <Link href="/" className="brand">
@@ -29,7 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </span>
               OAuth Guides
             </Link>
-            <nav className="nav">
+            <nav className="nav" aria-label="Main">
               <Link href="/#guides" className="nav-link">
                 Guides
               </Link>
