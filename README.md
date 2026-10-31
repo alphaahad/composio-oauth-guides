@@ -96,7 +96,6 @@ The app is a standard Next.js 16 app (Cache Components enabled) and deploys to V
 - **Tested claims describe one account on one day.** Provider consoles change; the test logs are dated.
 - **No end-user flows were exercised.** We stopped at each consent screen.
 - Rate limiting is per server instance, so on serverless it is a brake on casual abuse, not a security boundary.
-- No license has been chosen for this repository yet.
 
 ## Layout
 
@@ -110,3 +109,7 @@ public/evidence/      logs of the real setup attempts, served as plain text
 research/             audit, plain-answer comparison, hand-review overrides, corrections log
 scripts/              verification, drafting and QA tools
 ```
+
+## License
+
+MIT. See `LICENSE`.
