@@ -3,7 +3,7 @@ import net from "node:net";
 import type { FetchedPage } from "./verify";
 
 const MAX_BYTES = 2_000_000;
-const TIMEOUT_MS = 10_000;
+const TOTAL_MS = 12_000; // overall budget per page, across redirects and download
 const MAX_REDIRECTS = 5;
 const ALLOWED_TYPES = ["text/html", "text/plain", "text/markdown", "application/json", "application/xml", "text/xml"];
 
@@ -122,25 +122,22 @@ export type FetchResult =
 
 export async function fetchPage(rawUrl: string): Promise<FetchResult> {
   let current = rawUrl;
+  // One deadline for the whole page: every redirect hop AND the body download. A slow server must not be able to stall
+  // a live guide, and a timer that stops once headers arrive would let a slowly dripping body hang forever.
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), TOTAL_MS);
   try {
     for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
       const url = await assertPublicHttps(current);
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
-      let res: Response;
-      try {
-        res = await fetch(url, {
-          redirect: "manual",
-          signal: ctrl.signal,
-          headers: {
-            "user-agent": "oauth-guide-bot/0.1 (documentation research tool)",
-            accept: "text/markdown,text/html;q=0.9,text/plain;q=0.8,*/*;q=0.1", // many docs sites serve clean markdown when asked
-            "accept-language": "en-US,en;q=0.9", // otherwise some sites localize by IP, and English quotes then cannot be verified
-          },
-        });
-      } finally {
-        clearTimeout(timer);
-      }
+      const res = await fetch(url, {
+        redirect: "manual",
+        signal: ctrl.signal,
+        headers: {
+          "user-agent": "oauth-guide-bot/0.1 (documentation research tool)",
+          accept: "text/markdown,text/html;q=0.9,text/plain;q=0.8,*/*;q=0.1", // many docs sites serve clean markdown when asked
+          "accept-language": "en-US,en;q=0.9", // otherwise some sites localize by IP, and English quotes then cannot be verified
+        },
+      });
 
       if (res.status >= 300 && res.status < 400) {
         const loc = res.headers.get("location");
@@ -171,8 +168,10 @@ export async function fetchPage(rawUrl: string): Promise<FetchResult> {
     }
     return { ok: false, url: rawUrl, error: "too many redirects" };
   } catch (e) {
-    const msg = e instanceof Error ? (e.name === "AbortError" ? "timeout" : e.message) : String(e);
-    return { ok: false, url: rawUrl, error: msg };
+    const aborted = e instanceof Error && (e.name === "AbortError" || e.name === "TimeoutError");
+    return { ok: false, url: rawUrl, error: aborted || ctrl.signal.aborted ? "timeout" : e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(timer);
   }
 }
 

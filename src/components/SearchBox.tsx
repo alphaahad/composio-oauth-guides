@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Step = { stage: string; status: "start" | "done" | "warn"; message: string };
 
@@ -30,7 +30,9 @@ export function SearchBox() {
   const [error, setError] = useState<string | null>(null);
   const abort = useRef<AbortController | null>(null);
   const stallTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [elapsed, setElapsed] = useState(0);
   const stalled = useRef(false);
+  const cancelled = useRef(false);
 
   // A live guide normally takes about 15 seconds. If nothing at all arrives for this long, the connection has probably
   // been dropped (a server restart, a network blip), and waiting longer only looks like a hang.
@@ -44,6 +46,25 @@ export function SearchBox() {
   const disarmWatchdog = () => {
     if (stallTimer.current) clearTimeout(stallTimer.current);
     stallTimer.current = null;
+  };
+
+  // A ticking clock makes a slow step read as progress, not as a hang.
+  useEffect(() => {
+    if (!busy) return;
+    const started = Date.now();
+    const id = setInterval(() => setElapsed(Math.floor((Date.now() - started) / 1000)), 1000);
+    return () => {
+      clearInterval(id);
+      setElapsed(0);
+    };
+  }, [busy]);
+
+  // A run that stops must not leave a spinner behind: it would look like the page is still working.
+  const stopPending = () => setSteps((prev) => prev.map((s) => (s.status === "start" ? { ...s, status: "warn" as const, message: `${s.message} (stopped)` } : s)));
+  const cancel = (e?: { preventDefault: () => void }) => {
+    e?.preventDefault(); // belt and braces: a click here must never turn into a form submit
+    cancelled.current = true;
+    abort.current?.abort();
   };
 
   // A step that starts and later finishes should become one line, not two.
@@ -64,6 +85,7 @@ export function SearchBox() {
     setSteps([]);
     abort.current = new AbortController();
     stalled.current = false;
+    cancelled.current = false;
     armWatchdog();
 
     try {
@@ -100,8 +122,13 @@ export function SearchBox() {
       }
       throw new Error("The connection closed before the guide was ready. Please try again.");
     } catch (err) {
-      if (stalled.current) setError("This is taking longer than expected, so we stopped waiting. Please try again.");
-      else if ((err as Error).name !== "AbortError") setError(err instanceof Error ? err.message : "Something went wrong");
+      if (cancelled.current) {
+        setSteps([]); // the person stopped it: nothing to explain, so clear the card
+      } else {
+        stopPending();
+        if (stalled.current) setError("This is taking longer than expected, so we stopped waiting. Please try again.");
+        else if ((err as Error).name !== "AbortError") setError(err instanceof Error ? err.message : "Something went wrong");
+      }
       setBusy(false);
     } finally {
       disarmWatchdog();
@@ -131,9 +158,17 @@ export function SearchBox() {
           spellCheck={false}
           disabled={busy}
         />
-        <button className="btn btn-primary" disabled={busy || !query.trim()}>
-          {busy ? "Working" : "Get guide"}
-        </button>
+        {/* Distinct keys matter: without them React reuses one DOM button for both states, and when Cancel flips it back to a
+            submit button mid-click, the browser submits the form and silently starts a new search. */}
+        {busy ? (
+          <button key="cancel" type="button" className="btn btn-cancel" onClick={cancel}>
+            Cancel
+          </button>
+        ) : (
+          <button key="go" type="submit" className="btn btn-primary" disabled={!query.trim()}>
+            Get guide
+          </button>
+        )}
       </form>
 
       <div className="chips">
@@ -168,9 +203,9 @@ export function SearchBox() {
           </ol>
         )}
         {busy && (
-          <button type="button" className="btn" style={{ marginTop: 12 }} onClick={() => abort.current?.abort()}>
-            Cancel
-          </button>
+          <p className="elapsed" aria-hidden="true">
+            Working for {elapsed}s. A guide usually takes 10 to 20 seconds.
+          </p>
         )}
         {error && (
           <div role="alert" className="search-error">

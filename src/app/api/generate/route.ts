@@ -44,9 +44,16 @@ export async function POST(req: Request) {
   const stream = new ReadableStream({
     async start(controller) {
       const enc = new TextEncoder();
-      const send = (o: unknown) => controller.enqueue(enc.encode(sse(o)));
+      const send = (o: unknown) => {
+        try {
+          controller.enqueue(enc.encode(sse(o)));
+        } catch {
+          /* the client has gone away */
+        }
+      };
       try {
         for await (const ev of runPipeline(query, deps)) {
+          if (req.signal.aborted) break; // the visitor cancelled or left: stop spending model quota on the next stage
           if (ev.type === "result") {
             await saveLive(ev.guide);
             send({ type: "ready", slug: ev.guide.slug, source: "live" });
@@ -59,7 +66,11 @@ export async function POST(req: Request) {
         console.error("generate failed", e);
         send({ type: "error", message: "Something went wrong while generating this guide. Please try again." });
       } finally {
-        controller.close();
+        try {
+          controller.close();
+        } catch {
+          /* already closed */
+        }
       }
     },
   });

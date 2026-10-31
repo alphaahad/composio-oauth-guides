@@ -1,7 +1,9 @@
+import { connection } from "next/server";
+import { Suspense } from "react";
 import Link from "next/link";
 import { SearchBox } from "@/components/SearchBox";
 import { VERDICT_HEADLINE, VERDICT_TONE } from "@/lib/present";
-import { listSeeds } from "@/lib/store";
+import { listLive, listSeeds } from "@/lib/store";
 
 const LEGEND: [string, string][] = [
   ["Source", "A quote copied from the provider's own docs, checked by code against the page it came from."],
@@ -9,6 +11,33 @@ const LEGEND: [string, string][] = [
   ["Community source", "A quote from a third-party page. Useful, but not official."],
   ["Unverified", "Nothing we could check supports this. Shown as a gap on purpose."],
 ];
+
+/** Live guides people generated recently. Read at request time, so it streams in behind Suspense. */
+async function RecentGuides({ exclude }: { exclude: string[] }) {
+  await connection(); // reads storage and compares timestamps, so it must render at request time
+  const skip = new Set(exclude);
+  const guides = (await listLive(24)).filter((g) => !skip.has(g.slug)).slice(0, 12);
+  if (guides.length === 0) return null;
+  return (
+    <>
+      <h2 className="block-title" id="recent">
+        Recently generated
+      </h2>
+      <p className="prose">Written live by the agent from public pages. Nobody has reviewed these, so read the gaps and open the sources.</p>
+      <div className="recent">
+        {guides.map((g) => (
+          <Link key={g.slug} href={`/g/${g.slug}`} className="recent-item">
+            <span className="recent-name">{g.appName}</span>
+            <span className={`status tone-${VERDICT_TONE[g.verdict.value]}`}>
+              <span className="dot" aria-hidden="true" />
+              {VERDICT_HEADLINE[g.verdict.value]}
+            </span>
+          </Link>
+        ))}
+      </div>
+    </>
+  );
+}
 
 export default async function Home() {
   const seeds = await listSeeds();
@@ -46,6 +75,10 @@ export default async function Home() {
             <span className="card-foot">Generate one</span>
           </a>
         </div>
+
+        <Suspense fallback={null}>
+          <RecentGuides exclude={seeds.map((s) => s.slug)} />
+        </Suspense>
 
         <h2 className="block-title">How to read a guide</h2>
         <dl className="legend">

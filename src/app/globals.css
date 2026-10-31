@@ -1251,3 +1251,70 @@ table.plain tr:first-child td {
   gap: 10px;
   color: var(--text-2);
 }
+
+/* Cancel replaces the primary button while a search runs */
+.btn-cancel {
+  margin: 6px;
+  height: 48px;
+  padding: 0 24px;
+  background: var(--mute-bg);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 1rem;
+}
+.search .btn-cancel {
+  flex: none;
+}
+@media (max-width: 520px) {
+  .search .btn-cancel {
+    margin: 0 6px 6px;
+  }
+}
+
+/* Recently generated */
+.recent {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  margin-top: 16px;
+}
+.recent-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 1px var(--line);
+  color: var(--text);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.recent-item:hover {
+  text-decoration: none;
+  box-shadow: 0 0 0 1px var(--line-strong);
+  transform: translateY(-2px);
+}
+.recent-item:active {
+  transform: scale(0.985);
+  transition-duration: 0.1s;
+}
+.recent-name {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.recent-item .status {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .recent-item:hover {
+    transform: none;
+  }
+}
+
+.elapsed {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: var(--text-3);
+}

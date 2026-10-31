@@ -428,6 +428,28 @@ describe("thin or irrelevant sources (regression: the Workday guide)", () => {
     expect(r.guide.summary).toMatch(/appears to need a login/);
   });
 
+  it("groups repeated fetch failures on one host into a single warning", async () => {
+    const urls = ["https://m.example.com/a", "https://m.example.com/b", "https://m.example.com/c", DOC_URL];
+    const deps = mkDeps({
+      fetchPage: async (url) => (url === DOC_URL ? { ok: true as const, status: 200, page: { url, title: "Docs", text: DOC_TEXT, fetchedAt: "2026-10-30T00:00:00.000Z" } } : { ok: false as const, url, error: "HTTP 404", status: 404 }),
+      llm: { discover: async () => ({ urls: urls.map((url) => ({ url })) }), classify: async () => new Set(urls), extract: async () => extraction() },
+    });
+    const events = await run("Example", deps);
+    const warns = events.filter((e) => e.type === "stage" && e.status === "warn" && /Could not read.*m\.example\.com/.test(e.message));
+    expect(warns).toHaveLength(1);
+    expect(warns[0].type === "stage" && warns[0].message).toBe("Could not read 3 pages on m.example.com: HTTP 404");
+  });
+
+  it("reports each slow discovery step, so the page never sits silent", async () => {
+    const urls = [DOC_URL, "https://other.example.com/page"];
+    const deps = mkDeps({ llm: { discover: async () => ({ urls: urls.map((url) => ({ url })) }), classify: async () => new Set([DOC_URL]), extract: async () => extraction() } });
+    const messages = (await run("Example", deps)).flatMap((e) => (e.type === "stage" && e.stage === "discover" ? [e.message] : []));
+    expect(messages.some((m) => /Asking the model/.test(m))).toBe(true);
+    expect(messages.some((m) => /model suggested 2/.test(m))).toBe(true);
+    expect(messages.some((m) => /Sorting official pages/.test(m))).toBe(true);
+    expect(messages.some((m) => /candidate page/.test(m))).toBe(true);
+  });
+
   it("title-cases a plain lowercase name", () => {
     expect(resolveInput("workday").name).toBe("Workday");
     expect(resolveInput("google drive").name).toBe("Google Drive");

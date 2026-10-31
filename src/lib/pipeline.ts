@@ -108,7 +108,7 @@ export async function* runPipeline(rawInput: string, deps: Deps): AsyncGenerator
   const composioP = deps.composio(input.name);
 
   // 1. Discover
-  yield { type: "stage", stage: "discover", status: "start", message: "Finding official developer documentation" };
+  yield { type: "stage", stage: "discover", status: "start", message: "Asking the model where the official docs live" };
   let discovered: Discovery = { urls: [] };
   try {
     discovered = await deps.llm.discover(input.name, input.website);
@@ -116,6 +116,7 @@ export async function* runPipeline(rawInput: string, deps: Deps): AsyncGenerator
     const busy = e instanceof RateLimitError;
     yield { type: "stage", stage: "discover", status: "warn", message: busy ? "The model is at its rate limit; using the website and common docs addresses instead" : "Model suggestions were unavailable; using the website and common docs addresses instead" };
   }
+  yield { type: "stage", stage: "discover", status: "done", message: `The model suggested ${discovered.urls.length} documentation page${discovered.urls.length === 1 ? "" : "s"}` };
   // A website the user typed is trusted; one the model proposed is only a lead and gets no special standing.
   const website = input.website ?? safeOrigin(discovered.website) ?? guessWebsite(input.name);
   let fromLlmsTxt: DiscoveredUrl[] = [];
@@ -131,6 +132,7 @@ export async function* runPipeline(rawInput: string, deps: Deps): AsyncGenerator
   const official = new Set<string>(candidates.filter((c) => input.website && sameSite(c.url, input.website)).map((c) => c.url));
   const toClassify = candidates.filter((c) => !official.has(c.url) && !c.guess);
   if (toClassify.length > 0) {
+    yield { type: "stage", stage: "discover", status: "start", message: "Sorting official pages from community pages" };
     try {
       for (const u of await deps.llm.classify(input.name, toClassify)) official.add(u);
     } catch {
@@ -180,11 +182,13 @@ export async function* runPipeline(rawInput: string, deps: Deps): AsyncGenerator
   const pages: FetchedPage[] = [];
   let community = 0;
   const seenFinal = new Set<string>();
+  const failedByHost = new Map<string, number>();
   for (const { c, r } of results) {
     if (!r.ok) {
       if (c.guess) continue; // a guessed address that does not exist is not worth reporting
       sources.push({ url: c.url, title: c.title, fetchedAt: now(), status: "failed", note: r.error });
-      yield { type: "stage", stage: "fetch", status: "warn", message: `Could not read ${hostOf(c.url)}: ${r.error}` };
+      const key = `${hostOf(c.url)}\u0000${r.error}`;
+      failedByHost.set(key, (failedByHost.get(key) ?? 0) + 1);
       continue;
     }
     if (seenFinal.has(norm(r.page.url))) continue; // different candidates can redirect to the same page
@@ -196,6 +200,11 @@ export async function* runPipeline(rawInput: string, deps: Deps): AsyncGenerator
     pages.push({ ...r.page, official: isOfficial });
     sources.push({ url: r.page.url, title: r.page.title ?? c.title, fetchedAt: r.page.fetchedAt, status: "ok", note: isOfficial ? "official" : "not confirmed as the provider's own page (claims from here are labeled 'reported')" });
     yield { type: "stage", stage: "fetch", status: "done", message: `Read ${hostOf(r.page.url)} (${Math.round(r.page.text.length / 1000)}k chars${isOfficial ? "" : ", unconfirmed source"})` };
+  }
+
+  for (const [key, n] of failedByHost) {
+    const [host, error] = key.split("\u0000");
+    yield { type: "stage", stage: "fetch", status: "warn", message: n > 1 ? `Could not read ${n} pages on ${host}: ${error}` : `Could not read ${host}: ${error}` };
   }
 
   // 3. Probes + Composio

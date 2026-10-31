@@ -39,7 +39,7 @@ export async function listSeeds(): Promise<Guide[]> {
 /* Live guides: Upstash Redis over REST when configured (required in production, where instances share no memory
    or disk), otherwise JSON files under .data/live for local development. Route handlers and pages do not share
    module state, so an in-memory Map is not an option. */
-const LIVE_DIRS = [path.join(process.cwd(), ".data", "live"), path.join(os.tmpdir(), "oauth-guides-live")];
+const liveDirs = () => (process.env.LIVE_DIR ? [process.env.LIVE_DIR] : [path.join(process.cwd(), ".data", "live"), path.join(os.tmpdir(), "oauth-guides-live")]);
 const upstash = () => {
   const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
@@ -64,7 +64,7 @@ export async function getLive(slug: string): Promise<Guide | null> {
   if (upstash()) {
     json = ((await redis(["GET", `guide:${slug}`])) as string | null) ?? null;
   } else {
-    for (const dir of LIVE_DIRS) {
+    for (const dir of liveDirs()) {
       try {
         const file = path.join(dir, `${slug}.json`);
         const stat = await fs.stat(file);
@@ -86,10 +86,17 @@ export async function saveLive(guide: Guide): Promise<void> {
   const json = JSON.stringify(guide);
   if (upstash()) {
     await redis(["SET", `guide:${guide.slug}`, json, "EX", TTL_SECONDS]);
+    // A small recency index so the home page can list recent guides. Best effort: the guide itself is already saved.
+    try {
+      await redis(["ZADD", "guides:index", Date.now(), guide.slug]);
+      await redis(["ZREMRANGEBYRANK", "guides:index", 0, -201]);
+    } catch {
+      /* index is optional */
+    }
     return;
   }
   let lastErr: unknown;
-  for (const dir of LIVE_DIRS) {
+  for (const dir of liveDirs()) {
     try {
       await fs.mkdir(dir, { recursive: true });
       await fs.writeFile(path.join(dir, `${guide.slug}.json`), json);
@@ -99,6 +106,50 @@ export async function saveLive(guide: Guide): Promise<void> {
     }
   }
   throw lastErr instanceof Error ? lastErr : new Error("could not save guide");
+}
+
+/** Recently generated live guides, newest first. Empty on any storage trouble: the home page must not break over this. */
+export async function listLive(limit = 12): Promise<Guide[]> {
+  try {
+    let jsons: string[] = [];
+    if (upstash()) {
+      const slugs = ((await redis(["ZREVRANGE", "guides:index", 0, limit - 1])) as string[] | null) ?? [];
+      if (slugs.length > 0) {
+        const values = (await redis(["MGET", ...slugs.map((s) => `guide:${s}`)])) as (string | null)[];
+        jsons = values.filter((v): v is string => typeof v === "string");
+      }
+    } else {
+      const seen = new Set<string>();
+      const entries: { file: string; mtime: number }[] = [];
+      for (const dir of liveDirs()) {
+        let names: string[] = [];
+        try {
+          names = (await fs.readdir(dir)).filter((n) => n.endsWith(".json"));
+        } catch {
+          continue;
+        }
+        for (const n of names) {
+          if (seen.has(n)) continue;
+          seen.add(n);
+          const file = path.join(dir, n);
+          const stat = await fs.stat(file);
+          if (Date.now() - stat.mtimeMs <= TTL_SECONDS * 1000) entries.push({ file, mtime: stat.mtimeMs });
+        }
+      }
+      entries.sort((a, b) => b.mtime - a.mtime);
+      jsons = await Promise.all(entries.slice(0, limit).map((e) => fs.readFile(e.file, "utf8")));
+    }
+    return jsons.flatMap((j) => {
+      try {
+        const parsed = Guide.safeParse(JSON.parse(j));
+        return parsed.success ? [parsed.data] : [];
+      } catch {
+        return []; // one corrupt file must not hide every other guide
+      }
+    });
+  } catch {
+    return [];
+  }
 }
 
 export async function getGuide(slug: string): Promise<Guide | null> {
