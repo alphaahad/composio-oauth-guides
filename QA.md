@@ -31,7 +31,27 @@ A full pass over the production build (`npm run build && npm run start`) before 
 - A single corrupt saved guide hid every other guide in the recent list; one bad file is now skipped.
 - Missing favicon, share image, `robots.txt`, error boundaries, page titles per guide, and security headers.
 
+## Deployed site (Vercel, Upstash Redis)
+
+Checked against https://composio-oauth-guides-lovat.vercel.app after each deploy.
+
+| Area | Result |
+| --- | --- |
+| Routes | 200 for home, `/verification` and all six curated guides; 404 for unknown slugs and unknown pages; 308 from `/g/GitHub` to `/g/github`; `/g/%00` is refused with a 400 by Vercel's edge |
+| Headers | Security headers present; `/api` is `no-store`; `GET /api/generate` is 405 |
+| Live generation | Two fresh runs by `curl` (about 11 s) and one through the browser UI, ending on a working shareable link; the repeat request is served from the Redis cache |
+| Persistence | A generated guide opens on later requests handled by other instances, appears in "Recently generated", and an uppercase live slug redirects |
+| Rate limit | 6 counted requests per IP, then 429 with `Retry-After`, shown clearly in the UI |
+| Accessibility | axe on a live guide: 0 violations, no overflow |
+| Share metadata | Titles, descriptions and a 1200x630 image on the home page and on every guide |
+
+Faults found only on the deployed site, and fixed:
+
+- Every live-generated guide returned a 500. A slug that was not prebuilt is rendered on demand, and Next cannot prerender a fallback shell for a route that reads `params` outside `<Suspense>`. The guide body now streams inside `<Suspense>`; 404 and 308 stay real status codes because the proxy decides them first.
+- The rate limiter never tripped (counters were per serverless instance). Counters now live in Redis, with an in-memory fallback if Redis is unavailable.
+- Guide pages had no share image, because per-guide metadata replaced the site default.
+
 ## Known and accepted
 
 - Under `curl`, a page whose data fails to load leaves the HTTP stream open after the error payload; browsers recover and show the error page. This is how Next.js reports a failure after streaming starts.
-- Rate limiting is per server instance (see the README).
+- The rate limit keys on the forwarded client IP, so it slows casual abuse but is not a security boundary.

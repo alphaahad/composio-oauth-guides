@@ -42,7 +42,9 @@ export async function generateMetadata({ params }: PageProps<"/g/[slug]">): Prom
   if (!g) return { title: "Guide not found", robots: { index: false } };
   const title = `${g.appName}: OAuth app setup`;
   const description = g.summary.length > 200 ? `${g.summary.slice(0, 197)}...` : g.summary;
-  return { title, description, openGraph: { type: "article", title, description }, twitter: { card: "summary_large_image", title, description } };
+  // Setting openGraph here replaces the site-wide defaults, so the share image has to be named again.
+  const images = [{ url: "/opengraph-image", width: 1200, height: 630, alt: "OAuth App Guides" }];
+  return { title, description, openGraph: { type: "article", title, description, images }, twitter: { card: "summary_large_image", title, description, images } };
 }
 
 export default function GuidePage({ params }: PageProps<"/g/[slug]">) {

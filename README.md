@@ -10,6 +10,8 @@ This project answers three questions for any app, with the evidence attached:
 
 Search an app, or open a ready-made guide. Every claim in a guide shows the exact words that support it, or says it is unverified.
 
+**Live site: https://composio-oauth-guides-lovat.vercel.app**
+
 ## What is in it
 
 - **Six curated guides** (GitHub, Google, Slack, LinkedIn, Shopify, Notion), written from official docs and checked by script. GitHub, Google and Notion also include a **real setup attempt** whose log is published, so the "agent can / you must" split is observed, not assumed.
@@ -75,7 +77,8 @@ The app is a standard Next.js 16 app (Cache Components enabled) and deploys to V
 
 - **Set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`.** Without them live guides are written to local disk, which serverless instances do not share, so a generated guide's link would not open on the next request.
 - **Set `GEMINI_API_KEY`** as a server environment variable.
-- Live generation can take up to about 20 seconds; the route allows up to 120. Check your plan's function time limit.
+- Live generation takes about 10 to 20 seconds; the route allows up to 120. Check your plan's function time limit.
+- Redis also holds the shared rate-limit counters. The Vercel Marketplace Upstash integration injects `KV_REST_API_URL` and `KV_REST_API_TOKEN`, which the app reads, so nothing extra needs setting.
 - Live guides expire after 7 days. Curated guides ship in the repo and are cached until the next deploy.
 
 ## Decisions worth knowing
