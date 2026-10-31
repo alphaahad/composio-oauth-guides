@@ -12,6 +12,8 @@ Search an app, or open a ready-made guide. Every claim in a guide shows the exac
 
 **Live site: https://composio-oauth-guides-lovat.vercel.app**
 
+**Watch the 3-minute walkthrough:** [WALKTHROUGH.md](WALKTHROUGH.md) (video, chapters and transcript)
+
 ## What is in it
 
 - **Six curated guides** (GitHub, Google, Slack, LinkedIn, Shopify, Notion), written from official docs and checked by script. GitHub, Google and Notion also include a **real setup attempt** whose log is published, so the "agent can / you must" split is observed, not assumed.
