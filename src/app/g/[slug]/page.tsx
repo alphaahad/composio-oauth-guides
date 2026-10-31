@@ -51,11 +51,29 @@ export default function GuidePage({ params }: PageProps<"/g/[slug]">) {
   return (
     <main id="main" tabIndex={-1} className="page">
       <div className="container">
-        <Suspense fallback={<p className="fineprint" role="status">Loading guide...</p>}>
+        <Suspense fallback={<GuideSkeleton />}>
           <GuideContent params={params} />
         </Suspense>
       </div>
     </main>
+  );
+}
+
+/** Shown for the moment it takes a live guide to load: the same shapes as the real page, so nothing jumps when it arrives. */
+function GuideSkeleton() {
+  return (
+    <div className="sk-wrap" role="status" aria-label="Loading guide">
+      <span className="sk sk-link" />
+      <span className="sk sk-eyebrow" />
+      <span className="sk sk-title" />
+      <span className="sk sk-meta" />
+      <span className="sk sk-card" />
+      <div className="sk-tiles">
+        <span className="sk sk-tile" />
+        <span className="sk sk-tile" />
+        <span className="sk sk-tile" />
+      </div>
+    </div>
   );
 }
 

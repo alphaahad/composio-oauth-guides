@@ -1404,3 +1404,62 @@ table.plain tr:first-child td {
 #main:focus {
   outline: none;
 }
+
+/* Loading skeleton for a live guide */
+.sk-wrap {
+  display: grid;
+  gap: 14px;
+  padding-top: 8px;
+}
+.sk {
+  display: block;
+  border-radius: 12px;
+  background: var(--mute-bg);
+  animation: sk-pulse 1.5s var(--ease) infinite;
+}
+.sk-link {
+  width: 96px;
+  height: 16px;
+}
+.sk-eyebrow {
+  width: 140px;
+  height: 14px;
+  margin-top: 18px;
+}
+.sk-title {
+  width: min(320px, 70%);
+  height: 48px;
+}
+.sk-meta {
+  width: min(420px, 90%);
+  height: 22px;
+}
+.sk-card {
+  height: 240px;
+  margin-top: 18px;
+  border-radius: var(--radius);
+}
+.sk-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.sk-tile {
+  height: 160px;
+  border-radius: var(--radius);
+}
+@keyframes sk-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+@media (max-width: 640px) {
+  .sk-tiles {
+    grid-template-columns: 1fr;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sk {
+    animation: none;
+  }
+}
