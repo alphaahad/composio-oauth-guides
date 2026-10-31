@@ -38,7 +38,7 @@ export function resolveInput(raw: string): { name: string; website?: string } {
   const input = raw.trim();
   if (!input || input.length > 100 || /[\u0000-\u001f]/.test(input)) throw new Error("Enter an app name or website (max 100 characters).");
   const looksLikeUrl = /^https?:\/\//i.test(input) || /^[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(input);
-  if (!looksLikeUrl) return { name: input };
+  if (!looksLikeUrl) return { name: input === input.toLowerCase() ? input.replace(/\b[a-z]/g, (c) => c.toUpperCase()) : input };
   const url = new URL(/^https?:\/\//i.test(input) ? input : `https://${input}`);
   const parts = url.hostname.replace(/^www\./, "").split(".");
   const label = parts.length >= 2 ? parts[parts.length - 2] : parts[0];
@@ -283,7 +283,12 @@ function hostOf(u: string) {
 const NONE: Claim = { text: "", confidence: "unknown", evidence: [] };
 
 function gapsOnly(base: Base, composio: Guide["composio"], sources: SourceRef[]): Guide {
-  const why = sources.length ? "We could not read any documentation pages (blocked, login-walled, or JavaScript-rendered)." : "We could not find documentation for this app.";
+  const walled = sources.some((s) => s.status === "failed" && /HTTP 40[13]\b/.test(s.note ?? ""));
+  const why = walled
+    ? "This provider's documentation appears to need a login (HTTP 401 or 403), so we could not read it."
+    : sources.length
+      ? "We could not read any documentation pages (blocked, login-walled, or JavaScript-rendered)."
+      : "We could not find documentation for this app.";
   return {
     ...base,
     usesOAuth: "unclear",
@@ -357,17 +362,27 @@ export function assemble(base: Base, composio: Guide["composio"], ex: ExtractedG
   const surf = verifyItem(ex.surfaceItem, pages);
   if (!surf.verified) dropped++;
 
+  // If we never reached the provider's own docs, the model's prose is built on thin or irrelevant pages and can state
+  // things that are simply false (it once told a reader that Workday has no OAuth flow). Say what we know instead.
+  const walled = base.sources.some((s) => s.status === "failed" && /HTTP 40[13]\b/.test(s.note ?? ""));
+  if (walled) gaps.push("Some of this provider's documentation needs a login (HTTP 401 or 403), so we could not read it. Its public pages may not cover OAuth setup.");
+  const noOfficial = officialCount === 0;
+  if (noOfficial) gaps.push("None of the pages we read could be confirmed as this provider's own developer documentation. It may sit behind a login or on a site we did not find.");
+  const e = ex.effortHours;
+  const effortOk = !noOfficial && e.maxHours > 0 && e.minHours >= 0 && e.minHours <= e.maxHours;
+
   const guide: Guide = {
     ...base,
-    usesOAuth: ex.usesOAuth,
+    appName: displayName(base.appName, ex.appName),
+    usesOAuth: noOfficial ? "unclear" : ex.usesOAuth,
     verdict: { value: verdictValue, claim: verdictClaim },
-    summary: ex.summary,
+    summary: noOfficial
+      ? "We could not confirm any of the pages we read as this provider's own developer documentation, so this guide has little to go on. Treat everything below as unconfirmed, and check the provider's developer portal directly."
+      : ex.summary,
     composio,
-    effort: {
-      text: `${ex.effortHours.minHours}-${ex.effortHours.maxHours} hours to set up the app (our estimate: ${ex.effortHours.basis.replace(/^estimated?\s*(time\s*)?(to\s*)?/i, "").replace(/\.$/, "")})`,
-      confidence: "inferred",
-      evidence: [],
-    },
+    effort: effortOk
+      ? { text: `${e.minHours}-${e.maxHours} hours to set up the app (our estimate: ${e.basis.replace(/^estimated?\s*(time\s*)?(to\s*)?/i, "").replace(/\.$/, "")})`, confidence: "inferred", evidence: [] }
+      : { text: "Unknown: the pages we read do not describe a setup process we could size", confidence: "unknown", evidence: [] },
     wait,
     blockerRisk: { value: ex.blockerRisk, claim: { text: `${ex.blockerRisk} (our judgment from the requirements found)`, confidence: "inferred", evidence: [] } },
     scopeTiers: list(ex.scopeTiers),
@@ -381,6 +396,13 @@ export function assemble(base: Base, composio: Guide["composio"], ex: ExtractedG
   };
   if (dropped > 0) guide.gaps.push(`Verification: ${dropped} of ${total} extracted claims had no quote found on the fetched pages and are marked unknown.`);
   return guide;
+}
+
+/** Prefer the model's properly cased name ("Workday") over what was typed ("workday") when they are the same name. */
+export function displayName(typed: string, modelName: string): string {
+  const key = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const m = modelName.trim();
+  return m && key(m) === key(typed) ? m : typed;
 }
 
 type Slot = { claim: Claim; judged: string };

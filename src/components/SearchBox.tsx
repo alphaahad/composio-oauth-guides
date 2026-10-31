@@ -29,6 +29,22 @@ export function SearchBox() {
   const [steps, setSteps] = useState<Step[]>([]);
   const [error, setError] = useState<string | null>(null);
   const abort = useRef<AbortController | null>(null);
+  const stallTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stalled = useRef(false);
+
+  // A live guide normally takes about 15 seconds. If nothing at all arrives for this long, the connection has probably
+  // been dropped (a server restart, a network blip), and waiting longer only looks like a hang.
+  const armWatchdog = () => {
+    if (stallTimer.current) clearTimeout(stallTimer.current);
+    stallTimer.current = setTimeout(() => {
+      stalled.current = true;
+      abort.current?.abort();
+    }, 45_000);
+  };
+  const disarmWatchdog = () => {
+    if (stallTimer.current) clearTimeout(stallTimer.current);
+    stallTimer.current = null;
+  };
 
   // A step that starts and later finishes should become one line, not two.
   function push(ev: Step) {
@@ -47,6 +63,8 @@ export function SearchBox() {
     setError(null);
     setSteps([]);
     abort.current = new AbortController();
+    stalled.current = false;
+    armWatchdog();
 
     try {
       const res = await fetch("/api/generate", {
@@ -64,6 +82,7 @@ export function SearchBox() {
       let buf = "";
       for (;;) {
         const { done, value } = await reader.read();
+        armWatchdog();
         if (done) break;
         buf += dec.decode(value, { stream: true });
         const frames = buf.split("\n\n");
@@ -81,8 +100,11 @@ export function SearchBox() {
       }
       throw new Error("The connection closed before the guide was ready. Please try again.");
     } catch (err) {
-      if ((err as Error).name !== "AbortError") setError(err instanceof Error ? err.message : "Something went wrong");
+      if (stalled.current) setError("This is taking longer than expected, so we stopped waiting. Please try again.");
+      else if ((err as Error).name !== "AbortError") setError(err instanceof Error ? err.message : "Something went wrong");
       setBusy(false);
+    } finally {
+      disarmWatchdog();
     }
   }
 
@@ -144,6 +166,11 @@ export function SearchBox() {
               </li>
             ))}
           </ol>
+        )}
+        {busy && (
+          <button type="button" className="btn" style={{ marginTop: 12 }} onClick={() => abort.current?.abort()}>
+            Cancel
+          </button>
         )}
         {error && (
           <div role="alert" className="search-error">

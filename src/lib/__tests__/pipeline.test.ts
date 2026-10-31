@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RateLimitError } from "../llm";
-import { resolveInput, runPipeline, slugify, type Deps, type PipelineEvent } from "../pipeline";
+import { displayName, resolveInput, runPipeline, slugify, type Deps, type PipelineEvent } from "../pipeline";
 import type { ExtractedGuide } from "../schema";
 
 const DOC_URL = "https://docs.example.com/oauth";
@@ -394,6 +394,62 @@ describe("url matching", () => {
     const { matchOffered, urlKey } = await import("../discovery");
     expect(urlKey("https://WWW.Example.com/Docs/#x")).toBe("https://www.example.com/Docs");
     expect(matchOffered(["https://www.typeform.com", "https://evil.com/x"], ["https://www.typeform.com/", "https://other.com/"])).toEqual(["https://www.typeform.com/"]);
+  });
+});
+
+describe("thin or irrelevant sources (regression: the Workday guide)", () => {
+  it("replaces the model's prose when no page could be confirmed as official, instead of repeating a possibly false claim", async () => {
+    const deps = mkDeps({
+      llm: { discover: async () => ({ urls: [{ url: DOC_URL }] }), classify: async () => new Set(), extract: async () => extraction({ summary: "This provider has no OAuth flow.", usesOAuth: "no" }) },
+    });
+    const r = resultOf(await run("workday", deps));
+    if (r?.type !== "result") throw new Error("no result");
+    expect(r.guide.summary).toMatch(/could not confirm any of the pages/i);
+    expect(r.guide.summary).not.toMatch(/no OAuth flow/);
+    expect(r.guide.usesOAuth).toBe("unclear");
+    expect(r.guide.gaps.some((g) => /provider's own developer documentation/.test(g))).toBe(true);
+    expect(r.guide.effort.confidence).toBe("unknown");
+  });
+
+  it("says so when documentation pages need a login", async () => {
+    const deps = mkDeps({
+      fetchPage: async (url) => (url === DOC_URL ? { ok: true as const, status: 200, page: { url, title: "Docs", text: DOC_TEXT, fetchedAt: "2026-10-30T00:00:00.000Z" } } : { ok: false as const, url, error: "HTTP 401", status: 401 }),
+      llm: { discover: async () => ({ urls: [{ url: DOC_URL }, { url: "https://community.example.com/docs" }] }), classify: async () => new Set([DOC_URL]), extract: async () => extraction() },
+    });
+    const r = resultOf(await run("Example", deps));
+    if (r?.type !== "result") throw new Error("no result");
+    expect(r.guide.gaps.some((g) => /needs a login/.test(g))).toBe(true);
+  });
+
+  it("explains a gaps-only guide when every page was behind a login", async () => {
+    const deps = mkDeps({ fetchPage: async (url) => ({ ok: false as const, url, error: "HTTP 401", status: 401 }) });
+    const r = resultOf(await run("Example", deps));
+    if (r?.type !== "result") throw new Error("no result");
+    expect(r.guide.summary).toMatch(/appears to need a login/);
+  });
+
+  it("title-cases a plain lowercase name", () => {
+    expect(resolveInput("workday").name).toBe("Workday");
+    expect(resolveInput("google drive").name).toBe("Google Drive");
+    expect(resolveInput("iPhone").name).toBe("iPhone");
+    expect(resolveInput("x").name).toBe("X");
+  });
+
+  it("never shows a zero or inverted effort estimate", async () => {
+    for (const effortHours of [{ minHours: 0, maxHours: 0, basis: "none" }, { minHours: 5, maxHours: 2, basis: "x" }]) {
+      const r = resultOf(await run("Example", mkDeps({}, extraction({ effortHours }))));
+      if (r?.type !== "result") throw new Error("no result");
+      expect(r.guide.effort.text).toMatch(/^Unknown/);
+    }
+  });
+
+  it("uses the model's properly cased name when it is the same name as typed", async () => {
+    const r = resultOf(await run("example", mkDeps({}, extraction({ appName: "Example" }))));
+    if (r?.type !== "result") throw new Error("no result");
+    expect(r.guide.appName).toBe("Example");
+    expect(displayName("workday", "Workday")).toBe("Workday");
+    expect(displayName("workday", "Totally Different")).toBe("workday");
+    expect(displayName("x", "")).toBe("x");
   });
 });
 
