@@ -1349,12 +1349,13 @@ table.plain tr:first-child td {
   background: var(--surface);
   color: var(--text);
   font-weight: 600;
-  box-shadow: var(--shadow-lift), 0 0 0 1px var(--line-strong);
   transition: top 0.15s var(--ease);
 }
 .skip:focus {
   top: 8px;
   text-decoration: none;
+  /* Only while visible: a shadow on the hidden link bleeds into the header at rest. */
+  box-shadow: var(--shadow-lift), 0 0 0 1px var(--line-strong);
 }
 
 /* Anchors styled as buttons (404 and error pages) */
