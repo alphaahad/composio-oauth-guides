@@ -186,6 +186,25 @@ export async function* runPipeline(rawInput: string, deps: Deps): AsyncGenerator
   yield { type: "stage", stage: "fetch", status: "start", message: "Fetching pages" };
   let results = await Promise.all(candidates.map(async (c) => ({ c, r: await deps.fetchPage(c.url) })));
 
+  // Pages reached by guessing an address (developer.<domain> and friends) were never put to the classifier, so a docs site that
+  // redirects to the marketing domain, like developer.typeform.com -> typeform.com/developers, stayed "unconfirmed" and its
+  // links were never followed. Ask about where each guess actually landed, with the same check suggested pages get.
+  const landed = new Map<string, { url: string; title?: string }>();
+  for (const { c, r } of results) {
+    if (!c.guess || !r.ok || official.has(c.url) || official.has(r.page.url)) continue;
+    landed.set(r.page.url, { url: r.page.url, title: r.page.title });
+  }
+  if (landed.size > 0) {
+    yield { type: "stage", stage: "discover", status: "start", message: "Checking whether the pages found by address are the provider's own" };
+    try {
+      const confirmed = await deps.llm.classify(input.name, [...landed.values()].slice(0, 6));
+      for (const u of confirmed) official.add(u);
+      yield { type: "stage", stage: "discover", status: "done", message: confirmed.size > 0 ? `Confirmed ${confirmed.size} as the provider's own` : "None of them could be confirmed as the provider's own" };
+    } catch {
+      yield { type: "stage", stage: "discover", status: "warn", message: "Could not check those pages; they will be labeled as unconfirmed" };
+    }
+  }
+
   // Follow one hop: landing pages rarely hold the OAuth details, but they link to them. Let the model pick
   // which links look relevant (anchor text matters: "Applications" says more than the URL), with keyword scoring as a fallback.
   const norm = (u: string) => u.replace(/\/+$/, "").toLowerCase();

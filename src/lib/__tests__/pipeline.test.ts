@@ -54,6 +54,60 @@ async function run(input: string, deps: Deps) {
 }
 const resultOf = (events: PipelineEvent[]) => events.find((e) => e.type === "result");
 
+describe("pages found by guessing an address", () => {
+  const LANDED = "https://www.example.com/developers/";
+  const page = (url: string) => ({ ok: true as const, status: 200, page: { url, title: "Developers", text: DOC_TEXT, fetchedAt: "2026-10-30T00:00:00.000Z" } });
+  // developer.example.com redirects to the marketing domain; every other guessed address is a 404.
+  const fetchPage: Deps["fetchPage"] = async (url) =>
+    url === "https://developer.example.com/" || url === "https://developer.example.com" ? page(LANDED) : { ok: false, url, status: 404, error: "HTTP 404" };
+  const sourceOf = (events: PipelineEvent[]) => {
+    const r = resultOf(events);
+    if (r?.type !== "result") throw new Error("no result");
+    return r.guide;
+  };
+
+  it("are classified by where they landed, so a docs site behind a redirect counts as official", async () => {
+    const asked: string[] = [];
+    const deps = mkDeps({
+      fetchPage,
+      llm: {
+        discover: async () => ({ urls: [] }),
+        classify: async (_a, urls) => {
+          asked.push(...urls.map((u) => u.url));
+          return new Set(urls.map((u) => u.url).filter((u) => u === LANDED));
+        },
+        extract: async () => extraction({ steps: [{ text: "Register in the portal", quote: "Register your app in the developer portal.", sourceUrl: LANDED }], verdictItem: item("Review", "Apps listed in the marketplace go through review.", LANDED) }),
+      },
+    });
+    const g = sourceOf(await run("Example", deps));
+    expect(asked).toContain(LANDED);
+    expect(g.sources.find((s) => s.url === LANDED)?.note).toBe("official");
+    expect(g.steps[0].confidence).toBe("docs");
+  });
+
+  it("stay unconfirmed when the classifier does not vouch for them", async () => {
+    const deps = mkDeps({ fetchPage, llm: { discover: async () => ({ urls: [] }), classify: async () => new Set(), extract: async () => extraction() } });
+    const g = sourceOf(await run("Example", deps));
+    expect(g.sources.find((s) => s.url === LANDED)?.note).toMatch(/not confirmed/);
+  });
+
+  it("stay unconfirmed, with a visible warning, when the check itself fails", async () => {
+    const deps = mkDeps({
+      fetchPage,
+      llm: {
+        discover: async () => ({ urls: [] }),
+        classify: async () => {
+          throw new Error("503");
+        },
+        extract: async () => extraction(),
+      },
+    });
+    const events = await run("Example", deps);
+    expect(events.some((e) => e.type === "stage" && e.status === "warn" && /Could not check those pages/.test(e.message))).toBe(true);
+    expect(sourceOf(events).sources.find((s) => s.url === LANDED)?.note).toMatch(/not confirmed/);
+  });
+});
+
 describe("runPipeline", () => {
   it("verifies real quotes, downgrades fabricated ones, never invents a wait time", async () => {
     const events = await run("Example", mkDeps());
