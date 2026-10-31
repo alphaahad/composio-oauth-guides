@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
-import { cache, type ReactNode } from "react";
+import { cache, Suspense, type ReactNode } from "react";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { ClaimList, Source, Tag } from "@/components/Claims";
@@ -19,9 +19,11 @@ const SURFACE_LABEL = {
 } as const;
 
 /**
- * Resolve the guide BEFORE anything streams, so a missing guide is a real 404 and a storage failure is a real error page
- * (data fetched inside a Suspense boundary would already have sent a 200). Seeds come from a cached lookup and are
- * prerendered; live guides are created at request time, so they opt out of caching with connection().
+ * Seeds come from a cached lookup and are prerendered; live guides are created at request time, so they opt out of
+ * caching with connection(). The guide body sits inside <Suspense> because a slug that was not prebuilt is rendered on
+ * demand, and Next cannot prerender a fallback shell for a route that reads params outside a boundary (on Vercel that
+ * surfaced as a 500 for every live guide). The status codes that matter (404 for a missing guide, 308 for an uppercase
+ * slug) are decided earlier, in src/proxy.ts, so streaming here does not turn them into a 200.
  */
 const loadGuide = cache(async (slug: string): Promise<Guide | null> => {
   const seed = await getSeedCached(slug);
@@ -43,19 +45,25 @@ export async function generateMetadata({ params }: PageProps<"/g/[slug]">): Prom
   return { title, description, openGraph: { type: "article", title, description }, twitter: { card: "summary_large_image", title, description } };
 }
 
-export default async function GuidePage({ params }: PageProps<"/g/[slug]">) {
+export default function GuidePage({ params }: PageProps<"/g/[slug]">) {
+  return (
+    <main id="main" tabIndex={-1} className="page">
+      <div className="container">
+        <Suspense fallback={<p className="fineprint" role="status">Loading guide...</p>}>
+          <GuideContent params={params} />
+        </Suspense>
+      </div>
+    </main>
+  );
+}
+
+async function GuideContent({ params }: { params: PageProps<"/g/[slug]">["params"] }) {
   const { slug } = await params;
   const lower = slug.toLowerCase();
   if (lower !== slug && isValidSlug(lower)) permanentRedirect(`/g/${lower}`); // /g/GitHub -> /g/github
   const g = await loadGuide(slug);
   if (!g) notFound();
-  return (
-    <main id="main" tabIndex={-1} className="page">
-      <div className="container">
-        <GuideView g={g} />
-      </div>
-    </main>
-  );
+  return <GuideView g={g} />;
 }
 
 function Section({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
